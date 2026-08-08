@@ -1,0 +1,109 @@
+TAZA FRONTEND — WHERE TO ADD REAL PHOTOS / IMAGES
+====================================================
+
+Every spot below is already marked in the code with a comment containing
+the words "PHOTO PLACEHOLDER" — search for that string in your editor
+(Ctrl+Shift+F / Cmd+Shift+F -> "PHOTO PLACEHOLDER") to jump straight to
+each one. This file just explains what goes in each spot and how.
+
+--------------------------------------------------------------------------
+1. LOGO / FAVICON
+--------------------------------------------------------------------------
+Files:
+  public/logo.svg        <- currently a simple placeholder leaf mark
+  index.html              <- favicon link, already points at /logo.svg
+
+What to do:
+  Replace public/logo.svg with the real Taza logo (SVG preferred). Keep the
+  filename "logo.svg" and it will update everywhere automatically (sidebar
+  + favicon both reference this one file).
+
+  Sidebar logo mark itself is rendered inline in:
+  src/components/layout/Sidebar.jsx (the small rounded square icon next to
+  the "Taza" wordmark) — swap the <Leaf /> icon + background for an <img>
+  tag pointing at your logo if you want the exact mark instead of the
+  placeholder leaf icon.
+
+--------------------------------------------------------------------------
+2. SIDEBAR FOOTER — PARTNER / WAREHOUSE LOGO
+--------------------------------------------------------------------------
+File: src/components/layout/Sidebar.jsx
+Look for: "PHOTO PLACEHOLDER" text at the bottom of the sidebar.
+
+What to do:
+  If the hackathon demo has a partner grocer/warehouse logo to show, replace
+  that text block with an <img> tag. Otherwise this section can just be
+  deleted.
+
+--------------------------------------------------------------------------
+3. NAVBAR — USER AVATAR
+--------------------------------------------------------------------------
+File: src/components/layout/Navbar.jsx
+Look for: "PHOTO PLACEHOLDER: user avatar"
+
+What to do:
+  Currently shows initials ("OP") in a circle. Once you have auth wired up,
+  replace the circle div with an <img src={user.avatarUrl} /> (fallback to
+  initials if no avatar is set).
+
+--------------------------------------------------------------------------
+4. BATCH THUMBNAILS (grid cards + batch detail page)
+--------------------------------------------------------------------------
+Files:
+  src/components/batches/BatchCard.jsx   (grid view thumbnail)
+  src/pages/BatchDetails.jsx             (larger image on the detail page)
+
+Look for: "PHOTO PLACEHOLDER: produce thumbnail"
+
+What to do:
+  Each mock batch in src/data/mockData.js has an `imageKey` field
+  (e.g. "mango-102"). Right now that key is just displayed as text inside
+  a colored box. Once the backend returns a real image URL per batch
+  (e.g. `batch.imageUrl`), replace the placeholder <div> with:
+
+    <img src={batch.imageUrl} alt={batch.produce} className="w-full h-28
+    object-cover rounded-lg" />
+
+  Until then, you can also drop static demo photos in /public/produce/
+  (e.g. /public/produce/mango-102.jpg) and reference them by imageKey as a
+  quick stand-in for the demo:
+
+    <img src={`/produce/${batch.imageKey}.jpg`} ... />
+
+--------------------------------------------------------------------------
+5. INSPECT PRODUCE — UPLOADED IMAGE PREVIEW
+--------------------------------------------------------------------------
+File: src/components/inspection/ImageUploader.jsx
+
+No action needed here — this one renders whatever image the user uploads
+at runtime (via URL.createObjectURL), so it needs no static asset. Marked
+in the code just so it's clear this is intentional, not a missing image.
+
+--------------------------------------------------------------------------
+6. TRACEABILITY — QR CODE IMAGE
+--------------------------------------------------------------------------
+File: src/components/traceability/BatchPassport.jsx
+Look for: "PHOTO PLACEHOLDER: generated QR code image"
+
+What to do:
+  Currently shows a generic QR icon. Once the backend generates a real QR
+  code per batch passport (see Feature 8 in the project doc — "Digital
+  Batch Passport"), either:
+    a) Have the backend return a QR image URL and swap in an <img>, or
+    b) Generate it client-side with a library like `qrcode.react`
+       (npm install qrcode.react), rendering the batch's passport URL.
+
+--------------------------------------------------------------------------
+7. GENERAL — HERO / MARKETING IMAGERY
+--------------------------------------------------------------------------
+This build is the logged-in product (dashboard, inspection, batches, etc.),
+not a marketing landing page. If your team also wants a public marketing
+page (like afresh.com/customers), that would be a separate page/section —
+let me know and I can scaffold a landing page with clearly marked photo
+slots for hero imagery, customer logos, and case-study thumbnails.
+
+--------------------------------------------------------------------------
+QUICK REFERENCE — SEARCH STRING
+--------------------------------------------------------------------------
+Search your editor for:  PHOTO PLACEHOLDER
+This surfaces all 5 in-code locations listed above in one pass.

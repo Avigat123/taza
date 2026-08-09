@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import batchRoutes from "./routes/batch.routes.js";
 
 const app = express();
 
@@ -12,5 +13,8 @@ app.get("/api/health", (req, res) => {
         message: "Taza backend is running",
     });
 });
+
+app.use("/api/batches", batchRoutes);
+
 
 export default app;

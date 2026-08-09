@@ -2,6 +2,7 @@ import app from "./app.js";
 import env from "./config/env.js";
 import connectDB from "./config/db.js";
 import errorMiddleware from "./middleware/error.middleware.js";
+import Batch from "./models/Batch.js";
 
 const startServer = async () => {
     await connectDB();

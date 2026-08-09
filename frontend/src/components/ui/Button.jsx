@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 const variants = {
   primary: "bg-brand-700 text-white hover:bg-brand-900",
   secondary: "bg-white text-ink border border-border hover:bg-brand-50",
@@ -17,15 +19,20 @@ export default function Button({
   size = "md",
   icon: Icon,
   className = "",
+  disabled,
   ...props
 }) {
   return (
-    <button
+    <motion.button
+      whileHover={disabled ? undefined : { scale: 1.02 }}
+      whileTap={disabled ? undefined : { scale: 0.97 }}
+      transition={{ duration: 0.12 }}
+      disabled={disabled}
       className={`inline-flex items-center gap-2 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     >
       {Icon && <Icon size={16} />}
       {children}
-    </button>
+    </motion.button>
   );
 }

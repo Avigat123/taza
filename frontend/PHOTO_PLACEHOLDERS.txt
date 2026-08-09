@@ -7,22 +7,13 @@ the words "PHOTO PLACEHOLDER" — search for that string in your editor
 each one. This file just explains what goes in each spot and how.
 
 --------------------------------------------------------------------------
-1. LOGO / FAVICON
+1. LOGO / FAVICON — DONE
 --------------------------------------------------------------------------
-Files:
-  public/logo.svg        <- currently a simple placeholder leaf mark
-  index.html              <- favicon link, already points at /logo.svg
-
-What to do:
-  Replace public/logo.svg with the real Taza logo (SVG preferred). Keep the
-  filename "logo.svg" and it will update everywhere automatically (sidebar
-  + favicon both reference this one file).
-
-  Sidebar logo mark itself is rendered inline in:
-  src/components/layout/Sidebar.jsx (the small rounded square icon next to
-  the "Taza" wordmark) — swap the <Leaf /> icon + background for an <img>
-  tag pointing at your logo if you want the exact mark instead of the
-  placeholder leaf icon.
+The sidebar mark and browser favicon now use the real apple photo
+(src/assets/produce/apple.png). To swap to a different image or the
+official Taza logo later, replace that file, or point
+src/components/layout/Sidebar.jsx's `appleLogo` import and
+public/favicon.png at a new image.
 
 --------------------------------------------------------------------------
 2. SIDEBAR FOOTER — PARTNER / WAREHOUSE LOGO
@@ -47,28 +38,33 @@ What to do:
   initials if no avatar is set).
 
 --------------------------------------------------------------------------
-4. BATCH THUMBNAILS (grid cards + batch detail page)
+4. BATCH THUMBNAILS (grid cards + batch detail page) — PARTIALLY DONE
 --------------------------------------------------------------------------
 Files:
-  src/components/batches/BatchCard.jsx   (grid view thumbnail)
-  src/pages/BatchDetails.jsx             (larger image on the detail page)
+  src/data/produceImages.js               (central photo registry)
+  src/components/batches/BatchCard.jsx     (grid view thumbnail)
+  src/pages/BatchDetails.jsx               (larger image on the detail page)
 
-Look for: "PHOTO PLACEHOLDER: produce thumbnail"
+Real photos are wired in for produce types that have a matching entry in
+src/data/produceImages.js — right now that's Mango, Tomato, Apple,
+Green Apple, and Blueberry (src/assets/produce/*.png). Batches of those
+types (e.g. MNG-102, MNG-118, TOM-054 in the mock data) show the real
+photo automatically.
 
-What to do:
-  Each mock batch in src/data/mockData.js has an `imageKey` field
-  (e.g. "mango-102"). Right now that key is just displayed as text inside
-  a colored box. Once the backend returns a real image URL per batch
-  (e.g. `batch.imageUrl`), replace the placeholder <div> with:
+Batches whose produce type has no matching photo yet (Banana, Onion,
+Papaya in the current mock data) still fall back to the old placeholder
+box showing the imageKey text — search "PHOTO PLACEHOLDER: no photo
+registered" to find that fallback.
 
-    <img src={batch.imageUrl} alt={batch.produce} className="w-full h-28
-    object-cover rounded-lg" />
+To add a photo for another produce type:
+  1. Drop the image in src/assets/produce/ (e.g. banana.png)
+  2. Import it in src/data/produceImages.js and add it to PRODUCE_IMAGES,
+     keyed by the exact produce name used in batch data (e.g. "Banana")
+  3. Every thumbnail spot picks it up automatically — no component changes
 
-  Until then, you can also drop static demo photos in /public/produce/
-  (e.g. /public/produce/mango-102.jpg) and reference them by imageKey as a
-  quick stand-in for the demo:
-
-    <img src={`/produce/${batch.imageKey}.jpg`} ... />
+Once the backend returns a real per-batch image URL instead of a static
+produce-type photo, swap getProduceImage(batch.produce) for
+batch.imageUrl in both files.
 
 --------------------------------------------------------------------------
 5. INSPECT PRODUCE — UPLOADED IMAGE PREVIEW
@@ -76,11 +72,21 @@ What to do:
 File: src/components/inspection/ImageUploader.jsx
 
 No action needed here — this one renders whatever image the user uploads
-at runtime (via URL.createObjectURL), so it needs no static asset. Marked
-in the code just so it's clear this is intentional, not a missing image.
+at runtime (via URL.createObjectURL), so it needs no static asset.
 
 --------------------------------------------------------------------------
-6. TRACEABILITY — QR CODE IMAGE
+6. INSPECT PRODUCE — DECORATIVE BACKGROUND — DONE
+--------------------------------------------------------------------------
+File: src/components/inspection/FruitBackdrop.jsx
+
+A soft, low-opacity scatter of the real produce photos (from
+src/data/produceImages.js) now sits behind the "no inspection yet" empty
+state, reinforcing that this page identifies real produce. To change
+which photos appear or their layout, edit PRODUCE_GALLERY in
+produceImages.js or the `positions` array in FruitBackdrop.jsx.
+
+--------------------------------------------------------------------------
+7. TRACEABILITY — QR CODE IMAGE
 --------------------------------------------------------------------------
 File: src/components/traceability/BatchPassport.jsx
 Look for: "PHOTO PLACEHOLDER: generated QR code image"
@@ -94,16 +100,15 @@ What to do:
        (npm install qrcode.react), rendering the batch's passport URL.
 
 --------------------------------------------------------------------------
-7. GENERAL — HERO / MARKETING IMAGERY
+8. GENERAL — HERO / MARKETING IMAGERY
 --------------------------------------------------------------------------
 This build is the logged-in product (dashboard, inspection, batches, etc.),
 not a marketing landing page. If your team also wants a public marketing
-page (like afresh.com/customers), that would be a separate page/section —
-let me know and I can scaffold a landing page with clearly marked photo
-slots for hero imagery, customer logos, and case-study thumbnails.
+page, that would be a separate page/section — let me know and I can
+scaffold one with clearly marked photo slots.
 
 --------------------------------------------------------------------------
 QUICK REFERENCE — SEARCH STRING
 --------------------------------------------------------------------------
 Search your editor for:  PHOTO PLACEHOLDER
-This surfaces all 5 in-code locations listed above in one pass.
+This surfaces the remaining unfilled spots (#2, #3, #4 fallback, #7).

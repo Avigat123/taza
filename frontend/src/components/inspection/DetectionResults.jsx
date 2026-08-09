@@ -1,6 +1,8 @@
+import { useTranslation } from "react-i18next";
 import Card, { CardHeader } from "../ui/Card";
 
 export default function DetectionResults({ result }) {
+  const { t } = useTranslation();
   const rows = [
     { label: "Produce type", value: result.produce },
     { label: "Ripeness", value: `${result.ripeness}%` },
@@ -11,7 +13,7 @@ export default function DetectionResults({ result }) {
 
   return (
     <Card>
-      <CardHeader title="Computer vision detection" subtitle="From uploaded image" />
+      <CardHeader title={t("inspect.visionTitle")} subtitle={t("inspect.visionSubtitle")} />
       <dl className="grid grid-cols-2 gap-y-3 gap-x-4">
         {rows.map((r) => (
           <div key={r.label}>

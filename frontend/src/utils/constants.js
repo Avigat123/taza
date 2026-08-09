@@ -18,10 +18,10 @@ export const ACTIONS = {
 };
 
 export const NAV_ITEMS = [
-  { label: "Dashboard", path: "/", icon: "LayoutDashboard" },
-  { label: "Inspect Produce", path: "/inspect", icon: "ScanLine" },
-  { label: "Batches", path: "/batches", icon: "Boxes" },
-  { label: "Recommendations", path: "/recommendations", icon: "ListChecks" },
-  { label: "Traceability", path: "/traceability", icon: "QrCode" },
-  { label: "Ops Agent", path: "/agent", icon: "Sparkles" },
+  { labelKey: "nav.dashboard", path: "/", icon: "LayoutDashboard" },
+  { labelKey: "nav.inspect", path: "/inspect", icon: "ScanLine" },
+  { labelKey: "nav.batches", path: "/batches", icon: "Boxes" },
+  { labelKey: "nav.recommendations", path: "/recommendations", icon: "ListChecks" },
+  { labelKey: "nav.traceability", path: "/traceability", icon: "QrCode" },
+  { labelKey: "nav.agent", path: "/agent", icon: "Sparkles" },
 ];

@@ -20,6 +20,19 @@ export const mockBatches = [
     action: "Sell locally",
     imageKey: "mango-102", // PHOTO PLACEHOLDER — see PHOTO_PLACEHOLDERS.txt
   },
+   {
+    id: "APP-118",
+    produce: "Apple",
+    origin: "Farm A, Ratnagiri",
+    harvestDate: "2026-08-01",
+    quantityKg: 1000,
+    freshness: 100,
+    shelfLifeDays: 1.8,
+    spoilageRisk: 31,
+    confidence: "High",
+    action: "Sell locally",
+    imageKey: "apple-118",
+  },
   {
     id: "MNG-118",
     produce: "Mango",

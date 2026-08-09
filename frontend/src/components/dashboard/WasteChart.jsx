@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 import Card, { CardHeader } from "../ui/Card";
 
 export default function WasteChart({ data }) {
+  const { t } = useTranslation();
   return (
     <Card>
-      <CardHeader title="Waste avoided" subtitle="Expected waste with vs. without AI recommendations (kg)" />
+      <CardHeader title={t("dashboard.wasteChartTitle")} subtitle={t("dashboard.wasteChartSubtitle")} />
       <ResponsiveContainer width="100%" height={220}>
         <BarChart data={data} margin={{ left: -20, right: 10 }}>
           <CartesianGrid stroke="#E3E7DC" vertical={false} />

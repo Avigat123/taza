@@ -1,10 +1,12 @@
+import { useTranslation } from "react-i18next";
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import Card, { CardHeader } from "../ui/Card";
 
 export default function FreshnessChart({ data }) {
+  const { t } = useTranslation();
   return (
     <Card>
-      <CardHeader title="Average freshness" subtitle="Across all active batches, last 7 days" />
+      <CardHeader title={t("dashboard.freshnessChartTitle")} subtitle={t("dashboard.freshnessChartSubtitle")} />
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ left: -20, right: 10 }}>
           <CartesianGrid stroke="#E3E7DC" vertical={false} />

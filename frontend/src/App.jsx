@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AppProvider } from "./context/AppContext";
+import AppShell from "./components/layout/AppShell";
 import Dashboard from "./pages/Dashboard";
 import InspectProduce from "./pages/InspectProduce";
 import Batches from "./pages/Batches";
@@ -13,13 +14,16 @@ export default function App() {
     <AppProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/inspect" element={<InspectProduce />} />
-          <Route path="/batches" element={<Batches />} />
-          <Route path="/batches/:id" element={<BatchDetails />} />
-          <Route path="/recommendations" element={<Recommendations />} />
-          <Route path="/traceability" element={<Traceability />} />
-          <Route path="/agent" element={<Agent />} />
+          <Route element={<AppShell />}>
+           
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/inspect" element={<InspectProduce />} />
+            <Route path="/batches" element={<Batches />} />
+            <Route path="/batches/:id" element={<BatchDetails />} />
+            <Route path="/recommendations" element={<Recommendations />} />
+            <Route path="/traceability" element={<Traceability />} />
+            <Route path="/agent" element={<Agent />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AppProvider>

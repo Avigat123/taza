@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "inspect": "Inspect Produce",
+    "batches": "Batches",
+    "recommendations": "Recommendations",
+    "traceability": "Traceability",
+    "agent": "Ops Agent"
+  },
+  "common": {
+    "searchPlaceholder": "Search batch ID...",
+    "viewAll": "View all",
+    "back": "Back",
+    "backToBatches": "Back to batches",
+    "daysLeft": "left",
+    "loading": "Loading...",
+    "confidence": "Confidence",
+    "risk": {
+      "low": "Low risk",
+      "medium": "Medium risk",
+      "high": "High risk"
+    },
+    "urgency": {
+      "high": "Urgent",
+      "medium": "Soon",
+      "low": "Routine"
+    },
+    "actions": {
+      "Sell locally": "Sell locally",
+      "Ship to high-demand location": "Ship to high-demand location",
+      "Discount now": "Discount now",
+      "Redirect to processing": "Redirect to processing",
+      "Monitor": "Monitor"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Fresh-produce intelligence overview",
+    "loading": "Loading dashboard...",
+    "totalInventory": "Total inventory",
+    "atRiskInventory": "At-risk inventory",
+    "priorityBatchesStat": "Priority batches",
+    "wasteAvoided": "Waste avoided (est.)",
+    "freshnessChartTitle": "Average freshness",
+    "freshnessChartSubtitle": "Across all active batches, last 7 days",
+    "wasteChartTitle": "Waste avoided",
+    "wasteChartSubtitle": "Expected waste with vs. without AI recommendations (kg)",
+    "riskChartTitle": "Risk breakdown",
+    "riskChartSubtitle": "Share of inventory by spoilage-risk tier",
+    "priorityBatchesTitle": "Priority batches",
+    "priorityBatchesSubtitle": "Lowest remaining shelf life first",
+    "recentActivityTitle": "Recent activity"
+  },
+  "inspect": {
+    "title": "Inspect produce",
+    "subtitle": "Upload an image to run the full AI pipeline",
+    "produceImage": "Produce image",
+    "dragDrop": "Drag & drop a produce image",
+    "dragDropSub": "or choose an option below · JPG, PNG up to 10MB",
+    "browseFiles": "Browse files",
+    "useCamera": "Use camera",
+    "qualityParams": "Quality parameters",
+    "qualityParamsSub": "Optional — improves prediction accuracy",
+    "runInspection": "Run inspection",
+    "runningPipeline": "Running AI pipeline...",
+    "analyzing": "Analyzing image, freshness, shelf life, and risk...",
+    "noInspectionTitle": "No inspection yet",
+    "noInspectionDesc": "Upload a produce image and run the pipeline to see freshness, shelf-life, and spoilage results here.",
+    "visionTitle": "Computer vision detection",
+    "visionSubtitle": "From uploaded image",
+    "freshnessScoreTitle": "Multimodal freshness score",
+    "freshnessScoreDesc": "Combines image quality, storage conditions, and batch age into a single estimate.",
+    "shelfLifeTitle": "Estimated remaining shelf life",
+    "spoilageRiskTitle": "Spoilage risk",
+    "factors": {
+      "visualDefectRisk": "Visual defect risk",
+      "temperatureStress": "Temperature stress",
+      "ageRisk": "Age risk",
+      "storageRisk": "Storage risk"
+    }
+  },
+  "batches": {
+    "title": "Batches",
+    "activeBatches": "active batches",
+    "noBatchesTitle": "No batches found",
+    "noBatchesDesc": "Try a different produce filter.",
+    "all": "All",
+    "table": {
+      "batch": "Batch",
+      "produce": "Produce",
+      "quantity": "Quantity",
+      "freshness": "Freshness",
+      "shelfLife": "Shelf life",
+      "risk": "Risk",
+      "action": "Action"
+    }
+  },
+  "batchDetails": {
+    "batchInfo": "Batch info",
+    "origin": "Origin",
+    "harvestDate": "Harvest date",
+    "quantity": "Quantity",
+    "freshness": "Freshness",
+    "shelfLife": "Shelf life",
+    "spoilageRisk": "Spoilage risk",
+    "fullTraceability": "Full traceability",
+    "fullTraceabilityDesc": "View the farm-to-retailer journey for this batch",
+    "openPassport": "Open passport"
+  },
+  "recommendations": {
+    "title": "Recommendations",
+    "subtitle": "AI-generated actions to reduce waste",
+    "generating": "Generating recommendations...",
+    "noRecsTitle": "No recommendations right now",
+    "noRecsDesc": "All batches are within healthy freshness and risk ranges."
+  },
+  "traceability": {
+    "title": "Traceability",
+    "subtitle": "Scan a batch's digital passport",
+    "scanTitle": "Scan a batch passport",
+    "scanSubtitle": "Or enter a batch ID manually",
+    "placeholder": "e.g. MNG-102",
+    "go": "Go",
+    "fetching": "Fetching batch passport...",
+    "digitalPassport": "Digital passport",
+    "supplyChainJourney": "Supply-chain journey"
+  },
+  "agent": {
+    "title": "Ops agent",
+    "subtitle": "Ask about inventory, risk, and priorities",
+    "inputPlaceholder": "Ask about batches, risk, or actions...",
+    "greeting": "Hi, I'm the Taza ops agent. Ask me about inventory, risk, or what to prioritize today.",
+    "checking": "Checking inventory..."
+  }
+}

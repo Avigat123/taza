@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import PageContainer from "../components/layout/PageContainer";
 import OverviewCards from "../components/dashboard/OverviewCards";
 import FreshnessChart from "../components/dashboard/FreshnessChart";
@@ -10,19 +11,20 @@ import { useDashboard } from "../hooks/useDashboard";
 import { useBatches } from "../hooks/useBatches";
 
 export default function Dashboard() {
+  const { t } = useTranslation();
   const { summary, freshnessTrend, wasteComparison, riskBreakdown, activity, loading } = useDashboard();
   const { batches, loading: batchesLoading } = useBatches();
 
   if (loading || batchesLoading) {
     return (
-      <PageContainer title="Dashboard" subtitle="Fresh-produce intelligence overview">
-        <Loader label="Loading dashboard..." />
+      <PageContainer title={t("dashboard.title")} subtitle={t("dashboard.subtitle")}>
+        <Loader label={t("dashboard.loading")} />
       </PageContainer>
     );
   }
 
   return (
-    <PageContainer title="Dashboard" subtitle="Fresh-produce intelligence overview">
+    <PageContainer title={t("dashboard.title")} subtitle={t("dashboard.subtitle")}>
       <div className="space-y-5">
         <OverviewCards summary={summary} />
 

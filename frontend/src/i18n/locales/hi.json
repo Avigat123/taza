@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "dashboard": "डैशबोर्ड",
+    "inspect": "उपज जांचें",
+    "batches": "बैच",
+    "recommendations": "सिफारिशें",
+    "traceability": "ट्रेसेबिलिटी",
+    "agent": "ऑप्स एजेंट"
+  },
+  "common": {
+    "searchPlaceholder": "बैच आईडी खोजें...",
+    "viewAll": "सभी देखें",
+    "back": "वापस",
+    "backToBatches": "बैचों पर वापस जाएं",
+    "daysLeft": "शेष",
+    "loading": "लोड हो रहा है...",
+    "confidence": "विश्वास स्तर",
+    "risk": {
+      "low": "कम जोखिम",
+      "medium": "मध्यम जोखिम",
+      "high": "उच्च जोखिम"
+    },
+    "urgency": {
+      "high": "तत्काल",
+      "medium": "जल्द ही",
+      "low": "नियमित"
+    },
+    "actions": {
+      "Sell locally": "स्थानीय रूप से बेचें",
+      "Ship to high-demand location": "उच्च मांग वाले स्थान पर भेजें",
+      "Discount now": "अभी छूट दें",
+      "Redirect to processing": "प्रसंस्करण की ओर भेजें",
+      "Monitor": "निगरानी करें"
+    }
+  },
+  "dashboard": {
+    "title": "डैशबोर्ड",
+    "subtitle": "ताज़ा उपज इंटेलिजेंस ओवरव्यू",
+    "loading": "डैशबोर्ड लोड हो रहा है...",
+    "totalInventory": "कुल इन्वेंट्री",
+    "atRiskInventory": "जोखिम में इन्वेंट्री",
+    "priorityBatchesStat": "प्राथमिकता बैच",
+    "wasteAvoided": "बचाया गया अपव्यय (अनुमानित)",
+    "freshnessChartTitle": "औसत ताज़गी",
+    "freshnessChartSubtitle": "पिछले 7 दिनों में सभी सक्रिय बैचों में",
+    "wasteChartTitle": "बचाया गया अपव्यय",
+    "wasteChartSubtitle": "एआई सिफारिशों के साथ और बिना अपेक्षित अपव्यय (किग्रा)",
+    "riskChartTitle": "जोखिम विश्लेषण",
+    "riskChartSubtitle": "खराब होने के जोखिम स्तर के अनुसार इन्वेंट्री का हिस्सा",
+    "priorityBatchesTitle": "प्राथमिकता बैच",
+    "priorityBatchesSubtitle": "सबसे कम शेल्फ लाइफ पहले",
+    "recentActivityTitle": "हाल की गतिविधि"
+  },
+  "inspect": {
+    "title": "उपज जांचें",
+    "subtitle": "पूरा एआई पाइपलाइन चलाने के लिए एक छवि अपलोड करें",
+    "produceImage": "उपज की छवि",
+    "dragDrop": "उपज की छवि यहां खींचें और छोड़ें",
+    "dragDropSub": "या नीचे एक विकल्प चुनें · JPG, PNG 10MB तक",
+    "browseFiles": "फ़ाइलें ब्राउज़ करें",
+    "useCamera": "कैमरा उपयोग करें",
+    "qualityParams": "गुणवत्ता पैरामीटर",
+    "qualityParamsSub": "वैकल्पिक — भविष्यवाणी सटीकता में सुधार करता है",
+    "runInspection": "जांच चलाएं",
+    "runningPipeline": "एआई पाइपलाइन चल रहा है...",
+    "analyzing": "छवि, ताज़गी, शेल्फ लाइफ और जोखिम का विश्लेषण हो रहा है...",
+    "noInspectionTitle": "अभी तक कोई जांच नहीं",
+    "noInspectionDesc": "परिणाम देखने के लिए उपज की छवि अपलोड करें और पाइपलाइन चलाएं।",
+    "visionTitle": "कंप्यूटर विज़न पहचान",
+    "visionSubtitle": "अपलोड की गई छवि से",
+    "freshnessScoreTitle": "मल्टीमॉडल ताज़गी स्कोर",
+    "freshnessScoreDesc": "छवि गुणवत्ता, भंडारण स्थिति और बैच आयु को मिलाकर एक अनुमान।",
+    "shelfLifeTitle": "अनुमानित शेष शेल्फ लाइफ",
+    "spoilageRiskTitle": "खराब होने का जोखिम",
+    "factors": {
+      "visualDefectRisk": "दृश्य दोष जोखिम",
+      "temperatureStress": "तापमान तनाव",
+      "ageRisk": "आयु जोखिम",
+      "storageRisk": "भंडारण जोखिम"
+    }
+  },
+  "batches": {
+    "title": "बैच",
+    "activeBatches": "सक्रिय बैच",
+    "noBatchesTitle": "कोई बैच नहीं मिला",
+    "noBatchesDesc": "एक अलग उपज फ़िल्टर आज़माएं।",
+    "all": "सभी",
+    "table": {
+      "batch": "बैच",
+      "produce": "उपज",
+      "quantity": "मात्रा",
+      "freshness": "ताज़गी",
+      "shelfLife": "शेल्फ लाइफ",
+      "risk": "जोखिम",
+      "action": "कार्रवाई"
+    }
+  },
+  "batchDetails": {
+    "batchInfo": "बैच जानकारी",
+    "origin": "मूल स्थान",
+    "harvestDate": "फसल तिथि",
+    "quantity": "मात्रा",
+    "freshness": "ताज़गी",
+    "shelfLife": "शेल्फ लाइफ",
+    "spoilageRisk": "खराब होने का जोखिम",
+    "fullTraceability": "पूर्ण ट्रेसेबिलिटी",
+    "fullTraceabilityDesc": "इस बैच की खेत-से-खुदरा विक्रेता तक की यात्रा देखें",
+    "openPassport": "पासपोर्ट खोलें"
+  },
+  "recommendations": {
+    "title": "सिफारिशें",
+    "subtitle": "अपव्यय कम करने के लिए एआई-जनित कार्य",
+    "generating": "सिफारिशें तैयार हो रही हैं...",
+    "noRecsTitle": "अभी कोई सिफारिश नहीं",
+    "noRecsDesc": "सभी बैच स्वस्थ ताज़गी और जोखिम सीमा में हैं।"
+  },
+  "traceability": {
+    "title": "ट्रेसेबिलिटी",
+    "subtitle": "बैच का डिजिटल पासपोर्ट स्कैन करें",
+    "scanTitle": "बैच पासपोर्ट स्कैन करें",
+    "scanSubtitle": "या मैन्युअल रूप से बैच आईडी दर्ज करें",
+    "placeholder": "जैसे MNG-102",
+    "go": "जाएं",
+    "fetching": "बैच पासपोर्ट लाया जा रहा है...",
+    "digitalPassport": "डिजिटल पासपोर्ट",
+    "supplyChainJourney": "आपूर्ति श्रृंखला यात्रा"
+  },
+  "agent": {
+    "title": "ऑप्स एजेंट",
+    "subtitle": "इन्वेंट्री, जोखिम और प्राथमिकताओं के बारे में पूछें",
+    "inputPlaceholder": "बैच, जोखिम या कार्यों के बारे में पूछें...",
+    "greeting": "नमस्ते, मैं ताज़ा ऑप्स एजेंट हूं। इन्वेंट्री, जोखिम, या आज क्या प्राथमिकता दें, पूछें।",
+    "checking": "इन्वेंट्री जांची जा रही है..."
+  }
+}

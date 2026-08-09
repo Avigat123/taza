@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { ArrowRightCircle, Truck, Tag, Recycle, Eye } from "lucide-react";
 
 const ACTION_META = {
@@ -9,12 +10,13 @@ const ACTION_META = {
 };
 
 export default function ActionBadge({ action }) {
+  const { t } = useTranslation();
   const meta = ACTION_META[action] || ACTION_META.Monitor;
   const Icon = meta.icon;
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${meta.tone}`}>
       <Icon size={13} />
-      {action}
+      {t(`common.actions.${action}`, action)}
     </span>
   );
 }

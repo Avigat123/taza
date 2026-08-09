@@ -1,7 +1,9 @@
+import { useTranslation } from "react-i18next";
 import Badge from "../ui/Badge";
-import { spoilageTier, tierLabel } from "../../utils/risk";
+import { spoilageTier } from "../../utils/risk";
 
 export default function BatchStatus({ spoilageRisk }) {
+  const { t } = useTranslation();
   const tier = spoilageTier(spoilageRisk);
-  return <Badge tone={tier}>{tierLabel[tier]}</Badge>;
+  return <Badge tone={tier}>{t(`common.risk.${tier}`)}</Badge>;
 }

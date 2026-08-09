@@ -50,7 +50,39 @@ No component code should need to change.
 - Signature component: `src/components/ui/FreshnessRing.jsx` — a radial
   gauge used consistently for freshness scores across every page
 
-## Adding real photos
+## Language support
+
+The UI ships in English, Hindi (हिंदी), and Marathi (मराठी) via `i18next` /
+`react-i18next`. A language switcher (globe icon) sits in the top navbar;
+the choice persists in `localStorage`.
+
+- Translation strings live in `src/i18n/locales/{en,hi,mr}.json`
+- Config: `src/i18n/index.js`
+- To add another language: create `src/i18n/locales/<code>.json` with the
+  same key structure, import it in `src/i18n/index.js`, and add it to the
+  `LANGUAGES` array there
+
+Note: chrome/labels (nav, headers, buttons, stat labels) are fully
+translated. Mock/demo *content* — recommendation reasoning text, activity
+feed items, the ops agent's replies — is intentionally left in English
+since it stands in for real AI/backend output that would be generated
+per-request; wire translation or a multilingual model prompt into the
+real backend if you want that content localized too.
+
+## Motion & polish
+
+Sidebar and navbar now stay mounted across navigations (see `AppShell.jsx`
++ `PageHeaderContext.jsx`) so only page content animates — no shell
+flicker on route change. Framer Motion is used throughout for:
+
+- Page transitions (fade/slide on route change)
+- An animated active-nav-item pill in the sidebar
+- Stat cards that count up on load and lift on hover
+- Staggered list/grid entrances (batches, recommendations, activity feed)
+- Animated progress bars (spoilage risk factors)
+- Button press/hover micro-interactions
+
+
 
 See `PHOTO_PLACEHOLDERS.txt` in the project root — every image slot in
 the UI is marked in code with a `PHOTO PLACEHOLDER` comment and explained

@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import { ArrowLeft, MapPin, Calendar } from "lucide-react";
 import PageContainer from "../components/layout/PageContainer";
 import Card, { CardHeader } from "../components/ui/Card";
@@ -8,10 +10,12 @@ import ActionBadge from "../components/recommendations/ActionBadge";
 import Loader from "../components/ui/Loader";
 import { getBatchById } from "../api/batches";
 import { formatKg, formatDays, formatDate } from "../utils/formatting";
-import { spoilageTier, tierLabel } from "../utils/risk";
+import { spoilageTier } from "../utils/risk";
+import { getProduceImage } from "../data/produceImages";
 
 export default function BatchDetails() {
   const { id } = useParams();
+  const { t } = useTranslation();
   const [batch, setBatch] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -31,17 +35,17 @@ export default function BatchDetails() {
 
   if (loading) {
     return (
-      <PageContainer title="Batch details">
-        <Loader label="Loading batch..." />
+      <PageContainer title={t("nav.batches")}>
+        <Loader label={t("common.loading")} />
       </PageContainer>
     );
   }
 
   if (!batch) {
     return (
-      <PageContainer title="Batch not found">
+      <PageContainer title={t("nav.batches")}>
         <Link to="/batches" className="text-brand-700 text-sm hover:underline">
-          ← Back to batches
+          ← {t("common.backToBatches")}
         </Link>
       </PageContainer>
     );
@@ -52,66 +56,84 @@ export default function BatchDetails() {
   return (
     <PageContainer title={batch.id} subtitle={`${batch.produce} · ${formatKg(batch.quantityKg)}`}>
       <Link to="/batches" className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink mb-5">
-        <ArrowLeft size={14} /> Back to batches
+        <ArrowLeft size={14} /> {t("common.backToBatches")}
       </Link>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <Card className="lg:col-span-1 flex flex-col items-center text-center">
-          {/* PHOTO PLACEHOLDER: full-size produce photo for {batch.imageKey} — see PHOTO_PLACEHOLDERS.txt */}
-          <div className="w-full h-40 rounded-lg bg-brand-50 mb-4 flex items-center justify-center text-brand-300 text-xs font-mono">
-            {batch.imageKey}
-          </div>
-          <FreshnessRing score={batch.freshness} size={110} strokeWidth={9} sublabel={tierLabel[tier]} />
-          <div className="mt-4">
-            <ActionBadge action={batch.action} />
-          </div>
-        </Card>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
+          <Card className="h-full flex flex-col items-center text-center">
+            <div className="w-full h-40 rounded-lg overflow-hidden mb-4 bg-brand-50">
+              {getProduceImage(batch.produce) ? (
+                <img
+                  src={getProduceImage(batch.produce)}
+                  alt={batch.produce}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                // PHOTO PLACEHOLDER: no photo registered yet for "{batch.produce}" —
+                // drop one in src/assets/produce/ and add it to src/data/produceImages.js
+                <div className="w-full h-full flex items-center justify-center text-brand-300 text-xs font-mono">
+                  {batch.imageKey}
+                </div>
+              )}
+            </div>
+            <FreshnessRing score={batch.freshness} size={110} strokeWidth={9} sublabel={t(`common.risk.${tier}`)} />
+            <div className="mt-4">
+              <ActionBadge action={batch.action} />
+            </div>
+          </Card>
+        </motion.div>
 
-        <div className="lg:col-span-2 space-y-5">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.08 }}
+          className="lg:col-span-2 space-y-5"
+        >
           <Card>
-            <CardHeader title="Batch info" />
+            <CardHeader title={t("batchDetails.batchInfo")} />
             <dl className="grid grid-cols-2 gap-y-4 gap-x-4">
-              <Info label="Origin" value={batch.origin} icon={MapPin} />
-              <Info label="Harvest date" value={formatDate(batch.harvestDate)} icon={Calendar} />
+              <Info label={t("batchDetails.origin")} value={batch.origin} icon={MapPin} />
+              <Info label={t("batchDetails.harvestDate")} value={formatDate(batch.harvestDate)} icon={Calendar} />
               <div>
-                <dt className="text-xs text-muted">Quantity</dt>
+                <dt className="text-xs text-muted">{t("batchDetails.quantity")}</dt>
                 <dd className="text-sm font-mono font-medium text-ink mt-0.5">{formatKg(batch.quantityKg)}</dd>
               </div>
               <div>
-                <dt className="text-xs text-muted">Confidence</dt>
+                <dt className="text-xs text-muted">{t("common.confidence")}</dt>
                 <dd className="text-sm font-medium text-ink mt-0.5">{batch.confidence}</dd>
               </div>
             </dl>
           </Card>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-            <Card className="text-center">
-              <p className="text-xs text-muted">Freshness</p>
+            <Card className="text-center hover:shadow-pop transition-shadow">
+              <p className="text-xs text-muted">{t("batchDetails.freshness")}</p>
               <p className="text-2xl font-mono font-semibold text-ink mt-1">{batch.freshness}</p>
             </Card>
-            <Card className="text-center">
-              <p className="text-xs text-muted">Shelf life</p>
+            <Card className="text-center hover:shadow-pop transition-shadow">
+              <p className="text-xs text-muted">{t("batchDetails.shelfLife")}</p>
               <p className="text-2xl font-mono font-semibold text-ink mt-1">{formatDays(batch.shelfLifeDays)}</p>
             </Card>
-            <Card className="text-center">
-              <p className="text-xs text-muted">Spoilage risk</p>
+            <Card className="text-center hover:shadow-pop transition-shadow">
+              <p className="text-xs text-muted">{t("batchDetails.spoilageRisk")}</p>
               <p className="text-2xl font-mono font-semibold text-ink mt-1">{batch.spoilageRisk}%</p>
             </Card>
           </div>
 
           <Card className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-ink">Full traceability</p>
-              <p className="text-xs text-muted">View the farm-to-retailer journey for this batch</p>
+              <p className="text-sm font-medium text-ink">{t("batchDetails.fullTraceability")}</p>
+              <p className="text-xs text-muted">{t("batchDetails.fullTraceabilityDesc")}</p>
             </div>
             <Link
               to={`/traceability?batch=${batch.id}`}
               className="text-sm font-medium text-brand-700 hover:underline"
             >
-              Open passport →
+              {t("batchDetails.openPassport")} →
             </Link>
           </Card>
-        </div>
+        </motion.div>
       </div>
     </PageContainer>
   );

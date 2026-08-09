@@ -1,30 +1,46 @@
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import { Search, Bell } from "lucide-react";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 export default function Navbar({ title, subtitle }) {
-  return (
-    <header className="h-16 border-b border-border bg-surface/80 backdrop-blur sticky top-0 z-10 flex items-center justify-between px-6">
-      <div>
-        <h1 className="text-lg font-semibold text-ink font-display">{title}</h1>
-        {subtitle && <p className="text-xs text-muted -mt-0.5">{subtitle}</p>}
-      </div>
+  const { t } = useTranslation();
 
-      <div className="flex items-center gap-4">
-        <div className="hidden sm:flex items-center gap-2 bg-bg border border-border rounded-lg px-3 py-1.5 w-64">
+  return (
+    <header className="flex flex-col gap-4 p-4 bg-white border-b border-border">
+
+      {/* Top Section */}
+      <motion.div
+        key={title}
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.35, ease: "easeOut" }}
+      >
+        <h1 className="text-2xl font-bold text-ink">{title}</h1>
+
+        {subtitle && (
+          <p className="text-sm text-muted mt-1">
+            {subtitle}
+          </p>
+        )}
+      </motion.div>
+
+      {/* Bottom Section */}
+      <div className="flex flex-wrap items-center justify-between gap-3">
+
+        {/* Search */}
+        <div className="flex items-center gap-2 bg-bg border border-border rounded-lg px-3 py-2 w-full sm:w-72 transition-colors focus-within:border-brand-300">
           <Search size={15} className="text-muted" />
           <input
             type="text"
-            placeholder="Search batch ID..."
+            placeholder={t("common.searchPlaceholder")}
             className="bg-transparent text-sm outline-none w-full placeholder:text-muted"
           />
         </div>
-        <button className="relative w-9 h-9 rounded-full bg-bg border border-border flex items-center justify-center text-muted hover:text-ink">
-          <Bell size={16} />
-          <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-risk-high" />
-        </button>
-        {/* PHOTO PLACEHOLDER: user avatar — see PHOTO_PLACEHOLDERS.txt */}
-        <div className="w-9 h-9 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-semibold font-mono">
-          OP
-        </div>
+
+        {/* Right Controls */}
+       
+
       </div>
     </header>
   );

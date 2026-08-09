@@ -1,0 +1,135 @@
+{
+  "nav": {
+    "dashboard": "डॅशबोर्ड",
+    "inspect": "उत्पादन तपासा",
+    "batches": "बॅचेस",
+    "recommendations": "शिफारसी",
+    "traceability": "ट्रेसेबिलिटी",
+    "agent": "ऑप्स एजंट"
+  },
+  "common": {
+    "searchPlaceholder": "बॅच आयडी शोधा...",
+    "viewAll": "सर्व पहा",
+    "back": "मागे",
+    "backToBatches": "बॅचेसकडे परत जा",
+    "daysLeft": "शिल्लक",
+    "loading": "लोड होत आहे...",
+    "confidence": "विश्वासार्हता",
+    "risk": {
+      "low": "कमी जोखीम",
+      "medium": "मध्यम जोखीम",
+      "high": "उच्च जोखीम"
+    },
+    "urgency": {
+      "high": "तातडीचे",
+      "medium": "लवकरच",
+      "low": "नियमित"
+    },
+    "actions": {
+      "Sell locally": "स्थानिक पातळीवर विका",
+      "Ship to high-demand location": "उच्च मागणीच्या ठिकाणी पाठवा",
+      "Discount now": "आत्ताच सवलत द्या",
+      "Redirect to processing": "प्रक्रियेकडे वळवा",
+      "Monitor": "निरीक्षण करा"
+    }
+  },
+  "dashboard": {
+    "title": "डॅशबोर्ड",
+    "subtitle": "ताज्या उत्पादनाचा बुद्धिमत्ता आढावा",
+    "loading": "डॅशबोर्ड लोड होत आहे...",
+    "totalInventory": "एकूण साठा",
+    "atRiskInventory": "जोखमीत साठा",
+    "priorityBatchesStat": "प्राधान्य बॅचेस",
+    "wasteAvoided": "टाळलेला अपव्यय (अंदाजे)",
+    "freshnessChartTitle": "सरासरी ताजेपणा",
+    "freshnessChartSubtitle": "गेल्या ७ दिवसांतील सर्व सक्रिय बॅचेसमध्ये",
+    "wasteChartTitle": "टाळलेला अपव्यय",
+    "wasteChartSubtitle": "एआय शिफारशींसह आणि त्याशिवाय अपेक्षित अपव्यय (किलो)",
+    "riskChartTitle": "जोखीम विभाजन",
+    "riskChartSubtitle": "खराब होण्याच्या जोखीम पातळीनुसार साठ्याचा वाटा",
+    "priorityBatchesTitle": "प्राधान्य बॅचेस",
+    "priorityBatchesSubtitle": "सर्वात कमी शेल्फ लाइफ प्रथम",
+    "recentActivityTitle": "अलीकडील क्रियाकलाप"
+  },
+  "inspect": {
+    "title": "उत्पादन तपासा",
+    "subtitle": "संपूर्ण एआय पाइपलाइन चालवण्यासाठी प्रतिमा अपलोड करा",
+    "produceImage": "उत्पादनाची प्रतिमा",
+    "dragDrop": "उत्पादनाची प्रतिमा येथे ड्रॅग आणि ड्रॉप करा",
+    "dragDropSub": "किंवा खाली पर्याय निवडा · JPG, PNG १०MB पर्यंत",
+    "browseFiles": "फाइल्स ब्राउझ करा",
+    "useCamera": "कॅमेरा वापरा",
+    "qualityParams": "गुणवत्ता पॅरामीटर्स",
+    "qualityParamsSub": "ऐच्छिक — अंदाज अचूकता सुधारते",
+    "runInspection": "तपासणी चालवा",
+    "runningPipeline": "एआय पाइपलाइन चालू आहे...",
+    "analyzing": "प्रतिमा, ताजेपणा, शेल्फ लाइफ आणि जोखीम यांचे विश्लेषण होत आहे...",
+    "noInspectionTitle": "अद्याप तपासणी नाही",
+    "noInspectionDesc": "परिणाम पाहण्यासाठी प्रतिमा अपलोड करून पाइपलाइन चालवा.",
+    "visionTitle": "कॉम्प्युटर व्हिजन ओळख",
+    "visionSubtitle": "अपलोड केलेल्या प्रतिमेवरून",
+    "freshnessScoreTitle": "मल्टीमॉडल ताजेपणा स्कोअर",
+    "freshnessScoreDesc": "प्रतिमा गुणवत्ता, साठवण स्थिती आणि बॅच वय एकत्र करून अंदाज.",
+    "shelfLifeTitle": "अंदाजित उर्वरित शेल्फ लाइफ",
+    "spoilageRiskTitle": "खराब होण्याचा धोका",
+    "factors": {
+      "visualDefectRisk": "दृश्य दोष जोखीम",
+      "temperatureStress": "तापमान ताण",
+      "ageRisk": "वय जोखीम",
+      "storageRisk": "साठवण जोखीम"
+    }
+  },
+  "batches": {
+    "title": "बॅचेस",
+    "activeBatches": "सक्रिय बॅचेस",
+    "noBatchesTitle": "कोणतेही बॅचेस सापडले नाहीत",
+    "noBatchesDesc": "वेगळा उत्पादन फिल्टर वापरून पहा.",
+    "all": "सर्व",
+    "table": {
+      "batch": "बॅच",
+      "produce": "उत्पादन",
+      "quantity": "प्रमाण",
+      "freshness": "ताजेपणा",
+      "shelfLife": "शेल्फ लाइफ",
+      "risk": "जोखीम",
+      "action": "कृती"
+    }
+  },
+  "batchDetails": {
+    "batchInfo": "बॅच माहिती",
+    "origin": "मूळ",
+    "harvestDate": "कापणी तारीख",
+    "quantity": "प्रमाण",
+    "freshness": "ताजेपणा",
+    "shelfLife": "शेल्फ लाइफ",
+    "spoilageRisk": "खराब होण्याचा धोका",
+    "fullTraceability": "संपूर्ण ट्रेसेबिलिटी",
+    "fullTraceabilityDesc": "या बॅचचा शेत-ते-किरकोळ विक्रेता प्रवास पहा",
+    "openPassport": "पासपोर्ट उघडा"
+  },
+  "recommendations": {
+    "title": "शिफारसी",
+    "subtitle": "अपव्यय कमी करण्यासाठी एआय-निर्मित कृती",
+    "generating": "शिफारसी तयार होत आहेत...",
+    "noRecsTitle": "सध्या कोणत्याही शिफारसी नाहीत",
+    "noRecsDesc": "सर्व बॅचेस निरोगी ताजेपणा आणि जोखीम मर्यादेत आहेत."
+  },
+  "traceability": {
+    "title": "ट्रेसेबिलिटी",
+    "subtitle": "बॅचचा डिजिटल पासपोर्ट स्कॅन करा",
+    "scanTitle": "बॅच पासपोर्ट स्कॅन करा",
+    "scanSubtitle": "किंवा बॅच आयडी हाताने टाका",
+    "placeholder": "उदा. MNG-102",
+    "go": "जा",
+    "fetching": "बॅच पासपोर्ट आणले जात आहे...",
+    "digitalPassport": "डिजिटल पासपोर्ट",
+    "supplyChainJourney": "पुरवठा साखळी प्रवास"
+  },
+  "agent": {
+    "title": "ऑप्स एजंट",
+    "subtitle": "साठा, जोखीम आणि प्राधान्यांबद्दल विचारा",
+    "inputPlaceholder": "बॅचेस, जोखीम किंवा कृतींबद्दल विचारा...",
+    "greeting": "नमस्कार, मी ताजा ऑप्स एजंट आहे. साठा, जोखीम किंवा आज काय प्राधान्य द्यावे ते विचारा.",
+    "checking": "साठा तपासला जात आहे..."
+  }
+}

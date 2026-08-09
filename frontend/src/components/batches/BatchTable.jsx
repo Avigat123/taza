@@ -1,12 +1,23 @@
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { motion } from "framer-motion";
 import FreshnessRing from "../ui/FreshnessRing";
 import BatchStatus from "./BatchStatus";
 import { formatKg, formatDays } from "../../utils/formatting";
 
-const columns = ["Batch", "Produce", "Quantity", "Freshness", "Shelf life", "Risk", "Action"];
-
 export default function BatchTable({ batches }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const columns = [
+    t("batches.table.batch"),
+    t("batches.table.produce"),
+    t("batches.table.quantity"),
+    t("batches.table.freshness"),
+    t("batches.table.shelfLife"),
+    t("batches.table.risk"),
+    t("batches.table.action"),
+  ];
+
   return (
     <div className="overflow-x-auto rounded-xl border border-border bg-surface shadow-card">
       <table className="w-full text-sm">
@@ -20,9 +31,12 @@ export default function BatchTable({ batches }) {
           </tr>
         </thead>
         <tbody>
-          {batches.map((b) => (
-            <tr
+          {batches.map((b, i) => (
+            <motion.tr
               key={b.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.25, delay: i * 0.02 }}
               onClick={() => navigate(`/batches/${b.id}`)}
               className="border-b border-border last:border-0 hover:bg-bg/60 cursor-pointer transition-colors"
             >
@@ -36,8 +50,8 @@ export default function BatchTable({ batches }) {
               <td className="px-4 py-3">
                 <BatchStatus spoilageRisk={b.spoilageRisk} />
               </td>
-              <td className="px-4 py-3 text-muted">{b.action}</td>
-            </tr>
+              <td className="px-4 py-3 text-muted">{t(`common.actions.${b.action}`, b.action)}</td>
+            </motion.tr>
           ))}
         </tbody>
       </table>

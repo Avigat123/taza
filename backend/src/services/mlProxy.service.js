@@ -236,3 +236,95 @@ export const getAgentInsights = async ({
         throw wrapAxiosError(error, "AI service failed to generate insights");
     }
 };
+
+/**
+ * Calls the Python deterministic decision endpoint (POST /decision) directly
+ * — no CV, no LLM, no agent. Builds the EXACT DecisionRequest shape defined
+ * in ai/decision/schema.py:
+ *
+ *   {
+ *     batch: { batch_id, produce, quantity_kg },
+ *     shelf_life_assessment: { estimated_remaining_shelf_life_days,
+ *       estimate_range_days, spoilage_risk, confidence, urgency,
+ *       batch_condition, data_quality },
+ *     markets: [{ location, demand_kg, price_per_kg }],
+ *     routes: [{ destination, transport_hours, transport_cost }],
+ *     local_market: { location, demand_kg, price_per_kg } | null
+ *   }
+ *
+ * Express performs ZERO allocation/decision math here — it only maps field
+ * names (camelCase -> snake_case) and forwards real, caller-supplied data.
+ *
+ * @param {object} params
+ * @param {string} params.batchId
+ * @param {string} params.produce
+ * @param {number} params.quantityKg
+ * @param {object} params.shelfLifeAssessment - stored Layer 2 ShelfLifeAssessment
+ *        (same shape as Prediction.shelfLifeAssessment, i.e. has
+ *        .assessment.{estimated_remaining_shelf_life_days, estimate_range_days,
+ *        spoilage_risk, confidence, urgency} and .condition.batch_condition)
+ * @param {Array<{location:string, demandKg:number, pricePerKg:number}>} [params.markets]
+ * @param {Array<{destination:string, transportHours:number, transportCost:number}>} [params.routes]
+ * @param {{location:string, demandKg:number, pricePerKg:number}|null} [params.localMarket]
+ * @returns {Promise<object>} DecisionResult (ai/decision/schema.py)
+ */
+export const getDecision = async ({
+    batchId,
+    produce,
+    quantityKg,
+    shelfLifeAssessment,
+    markets = [],
+    routes = [],
+    localMarket = null,
+}) => {
+    if (!shelfLifeAssessment) {
+        throw new MLServiceError(
+            "No shelf-life assessment on file for this batch — run Analyze Batch first.",
+            422
+        );
+    }
+
+    const toMarketInfo = (m) => ({
+        location: m.location,
+        demand_kg: m.demandKg,
+        price_per_kg: m.pricePerKg,
+    });
+    const toRouteInfo = (r) => ({
+        destination: r.destination,
+        transport_hours: r.transportHours,
+        transport_cost: r.transportCost,
+    });
+
+    const shelfLifeInput = {
+        estimated_remaining_shelf_life_days:
+            shelfLifeAssessment.assessment?.estimated_remaining_shelf_life_days ?? null,
+        estimate_range_days: shelfLifeAssessment.assessment?.estimate_range_days ?? null,
+        spoilage_risk: shelfLifeAssessment.assessment?.spoilage_risk,
+        confidence: shelfLifeAssessment.assessment?.confidence,
+        urgency: shelfLifeAssessment.assessment?.urgency,
+        batch_condition: shelfLifeAssessment.condition?.batch_condition,
+        data_quality: shelfLifeAssessment.data_quality ?? null,
+    };
+
+    const payload = {
+        batch: { batch_id: String(batchId), produce, quantity_kg: quantityKg },
+        shelf_life_assessment: shelfLifeInput,
+        markets: markets.map(toMarketInfo),
+        routes: routes.map(toRouteInfo),
+        local_market: localMarket ? toMarketInfo(localMarket) : null,
+    };
+
+    logger.info("[EXPRESS] calling Python /decision", { batchId });
+    try {
+        const { data } = await client.post("/decision", payload);
+        return { result: data, requestSentToPython: payload };
+    } catch (error) {
+        const wrapped = wrapAxiosError(error, "AI service failed to compute decision");
+        logger.error("getDecision failed", {
+            batchId,
+            statusCode: wrapped.statusCode,
+            message: wrapped.message,
+        });
+        throw wrapped;
+    }
+};

@@ -506,6 +506,29 @@ export async function analyzeBatchImages(
 
 
   // ----------------------------------------------------------
+  // Real market demand + route data (optional)
+  //
+  // The backend (analysis.controller.js) reads these as JSON-encoded
+  // form fields and forwards them, unmodified, into the Python
+  // DecisionRequest's markets / routes / local_market. Only sent when
+  // non-empty — an absent field means "no market data for this run",
+  // never a fabricated default.
+  // ----------------------------------------------------------
+
+  if (Array.isArray(input.markets) && input.markets.length > 0) {
+    formData.append("markets", JSON.stringify(input.markets));
+  }
+
+  if (Array.isArray(input.routes) && input.routes.length > 0) {
+    formData.append("routes", JSON.stringify(input.routes));
+  }
+
+  if (input.localMarket) {
+    formData.append("localMarket", JSON.stringify(input.localMarket));
+  }
+
+
+  // ----------------------------------------------------------
   // Send request
   // ----------------------------------------------------------
 

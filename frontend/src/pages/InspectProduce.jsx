@@ -8,9 +8,12 @@ import {
   CloudUpload,
   Droplets,
   Image as ImageIcon,
+  IndianRupee,
   Leaf,
   MapPin,
   Package,
+  Plus,
+  RefreshCw,
   ScanLine,
   ShieldAlert,
   ShoppingCart,
@@ -45,6 +48,7 @@ import Loader from "../components/ui/Loader";
 
 import { useBatches } from "../hooks/useBatches";
 import { usePrediction } from "../hooks/usePrediction";
+import { useMarketData } from "../hooks/useMarketData";
 
 
 // ============================================================
@@ -52,6 +56,62 @@ import { usePrediction } from "../hooks/usePrediction";
 // ============================================================
 
 const MAX_IMAGES = 5;
+
+// A market/route row is only sent if EVERY field is filled in — partial
+// rows (e.g. a location typed but no price yet) are silently dropped
+// rather than sent with fabricated/zero values.
+function toValidMarkets(markets) {
+  return (markets || [])
+    .filter(
+      (m) =>
+        m.location?.trim() &&
+        m.demandKg !== "" &&
+        m.demandKg !== null &&
+        m.pricePerKg !== "" &&
+        m.pricePerKg !== null
+    )
+    .map((m) => ({
+      location: m.location.trim(),
+      demandKg: Number(m.demandKg),
+      pricePerKg: Number(m.pricePerKg),
+    }));
+}
+
+function toValidRoutes(routes) {
+  return (routes || [])
+    .filter(
+      (r) =>
+        r.destination?.trim() &&
+        r.transportHours !== "" &&
+        r.transportHours !== null &&
+        r.transportCost !== "" &&
+        r.transportCost !== null
+    )
+    .map((r) => ({
+      destination: r.destination.trim(),
+      transportHours: Number(r.transportHours),
+      transportCost: Number(r.transportCost),
+    }));
+}
+
+function toValidMarket(market) {
+  if (
+    !market ||
+    !market.location?.trim() ||
+    market.demandKg === "" ||
+    market.demandKg === null ||
+    market.pricePerKg === "" ||
+    market.pricePerKg === null
+  ) {
+    return undefined;
+  }
+  return {
+    location: market.location.trim(),
+    demandKg: Number(market.demandKg),
+    pricePerKg: Number(market.pricePerKg),
+  };
+}
+
 
 const STORAGE_TYPES = [
   "Cold storage",
@@ -269,6 +329,270 @@ function Field({
         </div>
       )}
     </div>
+  );
+}
+
+
+// ============================================================
+// MARKETS & ROUTES INPUT
+// ============================================================
+//
+// Collects REAL, user-entered market demand + route data. Nothing here
+// is invented or defaulted — every value comes straight from the form.
+// Shape matches what the backend expects (models/MarketDemand.js /
+// api/marketData.js): markets[{location,demandKg,pricePerKg}],
+// routes[{destination,transportHours,transportCost}], localMarket.
+// ============================================================
+
+function MarketRow({ market, onChange, onRemove }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-[1.4fr_1fr_1fr_auto] gap-2 items-end rounded-lg border border-border p-3 bg-bg">
+      <Field
+        label="Location"
+        icon={MapPin}
+        value={market.location}
+        onChange={(v) => onChange({ ...market, location: v })}
+        placeholder="e.g. Chandigarh"
+      />
+      <Field
+        label="Demand"
+        icon={Package}
+        type="number"
+        min="0"
+        step="1"
+        suffix="kg"
+        value={market.demandKg}
+        onChange={(v) => onChange({ ...market, demandKg: v })}
+        placeholder="e.g. 100"
+      />
+      <Field
+        label="Price"
+        icon={IndianRupee}
+        type="number"
+        min="0"
+        step="0.5"
+        suffix="/kg"
+        value={market.pricePerKg}
+        onChange={(v) => onChange({ ...market, pricePerKg: v })}
+        placeholder="e.g. 45"
+      />
+      <button
+        type="button"
+        onClick={onRemove}
+        className="h-[42px] w-[42px] flex items-center justify-center rounded-lg border border-border text-muted hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition"
+        aria-label="Remove market"
+      >
+        <X size={16} />
+      </button>
+    </div>
+  );
+}
+
+function RouteRow({ route, onChange, onRemove }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-[1.4fr_1fr_1fr_auto] gap-2 items-end rounded-lg border border-border p-3 bg-bg">
+      <Field
+        label="Destination"
+        icon={MapPin}
+        value={route.destination}
+        onChange={(v) => onChange({ ...route, destination: v })}
+        placeholder="Must match a market location"
+      />
+      <Field
+        label="Transport time"
+        icon={Truck}
+        type="number"
+        min="0"
+        step="0.5"
+        suffix="hrs"
+        value={route.transportHours}
+        onChange={(v) => onChange({ ...route, transportHours: v })}
+        placeholder="e.g. 2"
+      />
+      <Field
+        label="Transport cost"
+        icon={IndianRupee}
+        type="number"
+        min="0"
+        step="10"
+        value={route.transportCost}
+        onChange={(v) => onChange({ ...route, transportCost: v })}
+        placeholder="e.g. 1000"
+      />
+      <button
+        type="button"
+        onClick={onRemove}
+        className="h-[42px] w-[42px] flex items-center justify-center rounded-lg border border-border text-muted hover:text-red-600 hover:border-red-200 hover:bg-red-50 transition"
+        aria-label="Remove route"
+      >
+        <X size={16} />
+      </button>
+    </div>
+  );
+}
+
+function MarketsRoutesSection({
+  markets,
+  routes,
+  localMarket,
+  onMarketsChange,
+  onRoutesChange,
+  onLocalMarketChange,
+  onSaveMarketData,
+  savingMarketData,
+  saveMarketDataError,
+  onRunDecision,
+  decisionLoading,
+  canRunDecision,
+}) {
+  const [useLocalMarket, setUseLocalMarket] = useState(Boolean(localMarket));
+
+  function addMarket() {
+    onMarketsChange([...markets, { location: "", demandKg: "", pricePerKg: "" }]);
+  }
+  function updateMarket(index, next) {
+    onMarketsChange(markets.map((m, i) => (i === index ? next : m)));
+  }
+  function removeMarket(index) {
+    onMarketsChange(markets.filter((_, i) => i !== index));
+  }
+
+  function addRoute() {
+    onRoutesChange([...routes, { destination: "", transportHours: "", transportCost: "" }]);
+  }
+  function updateRoute(index, next) {
+    onRoutesChange(routes.map((r, i) => (i === index ? next : r)));
+  }
+  function removeRoute(index) {
+    onRoutesChange(routes.filter((_, i) => i !== index));
+  }
+
+  function toggleLocalMarket(checked) {
+    setUseLocalMarket(checked);
+    if (!checked) {
+      onLocalMarketChange(null);
+    } else {
+      onLocalMarketChange(localMarket || { location: "", demandKg: "", pricePerKg: "" });
+    }
+  }
+
+  return (
+    <Card>
+      <CardHeader
+        title="4. Markets & routes (optional)"
+        subtitle="Real demand, prices, and transport data for the deterministic decision engine — leave empty to skip market allocation."
+      />
+
+      {/* Markets */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium text-muted flex items-center gap-1.5">
+            <ShoppingCart size={13} /> Markets
+          </p>
+          <Button type="button" variant="secondary" size="sm" icon={Plus} onClick={addMarket}>
+            Add market
+          </Button>
+        </div>
+        {markets.length === 0 && (
+          <p className="text-[11px] text-muted italic">No markets added yet.</p>
+        )}
+        <div className="space-y-2">
+          {markets.map((m, i) => (
+            <MarketRow
+              key={i}
+              market={m}
+              onChange={(next) => updateMarket(i, next)}
+              onRemove={() => removeMarket(i)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Routes */}
+      <div className="space-y-2 mt-6">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium text-muted flex items-center gap-1.5">
+            <Truck size={13} /> Routes
+          </p>
+          <Button type="button" variant="secondary" size="sm" icon={Plus} onClick={addRoute}>
+            Add route
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted">
+          Each route's destination should match a market location above (except the local market, which needs no route).
+        </p>
+        {routes.length === 0 && (
+          <p className="text-[11px] text-muted italic">No routes added yet.</p>
+        )}
+        <div className="space-y-2">
+          {routes.map((r, i) => (
+            <RouteRow
+              key={i}
+              route={r}
+              onChange={(next) => updateRoute(i, next)}
+              onRemove={() => removeRoute(i)}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Local market */}
+      <div className="mt-6">
+        <label className="flex items-center gap-2 text-xs font-medium text-ink cursor-pointer">
+          <input
+            type="checkbox"
+            checked={useLocalMarket}
+            onChange={(e) => toggleLocalMarket(e.target.checked)}
+            className="rounded border-border"
+          />
+          Include a local market (zero transport cost/time)
+        </label>
+        {useLocalMarket && localMarket && (
+          <div className="mt-3">
+            <MarketRow
+              market={localMarket}
+              onChange={onLocalMarketChange}
+              onRemove={() => toggleLocalMarket(false)}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Save + decision-only actions */}
+      <div className="mt-6 pt-5 border-t border-border flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+        <div>
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onSaveMarketData}
+            disabled={savingMarketData}
+          >
+            {savingMarketData ? "Saving…" : "Save market data"}
+          </Button>
+          {saveMarketDataError && (
+            <p className="text-[11px] text-red-600 mt-2">
+              {saveMarketDataError.message || "Could not save market data."}
+            </p>
+          )}
+        </div>
+
+        <Button
+          type="button"
+          icon={RefreshCw}
+          size="sm"
+          onClick={onRunDecision}
+          disabled={!canRunDecision || decisionLoading}
+        >
+          {decisionLoading ? "Running decision…" : "Re-run decision only"}
+        </Button>
+      </div>
+      {!canRunDecision && (
+        <p className="text-[11px] text-muted mt-2">
+          Run AI analysis at least once first — the decision engine needs a stored shelf-life assessment.
+        </p>
+      )}
+    </Card>
   );
 }
 
@@ -848,6 +1172,10 @@ export default function InspectProduce() {
   const [transportDurationHours, setTransportDurationHours] = useState("");
   const [daysSinceHarvest, setDaysSinceHarvest] = useState("");
 
+  // Markets & routes — real, user-entered market demand + route data
+  const marketData = useMarketData(selectedBatchId || null);
+  const { markets, routes, localMarket, setMarkets, setRoutes, setLocalMarket } = marketData;
+
   // ==========================================================
   // SELECTED BATCH
   // ==========================================================
@@ -865,6 +1193,18 @@ export default function InspectProduce() {
     const days = calculateDaysSinceHarvest(selectedBatch.harvestDate);
     setDaysSinceHarvest(days === "" ? "" : String(days));
   }, [selectedBatch]);
+
+  // Load any previously saved market/route data for the selected batch
+  useEffect(() => {
+    if (selectedBatchId) {
+      marketData.load();
+    } else {
+      setMarkets([]);
+      setRoutes([]);
+      setLocalMarket(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedBatchId]);
 
   // ==========================================================
   // FILE HANDLING
@@ -934,10 +1274,53 @@ export default function InspectProduce() {
         transportDurationHours === "" ? undefined : Number(transportDurationHours),
       daysSinceHarvest:
         daysSinceHarvest === "" ? undefined : Number(daysSinceHarvest),
+      // Real, user-entered market/route data — only sent if the person
+      // actually filled in at least one complete market/route. The
+      // backend (analysis.controller.js) forwards these as-is to the
+      // Python DecisionRequest; nothing is fabricated here.
+      markets: toValidMarkets(markets),
+      routes: toValidRoutes(routes),
+      localMarket: toValidMarket(localMarket),
     };
 
     await runInspection(selectedBatchId, files, input);
   }
+
+  // ==========================================================
+  // MARKET DATA — SAVE + DECISION-ONLY RE-RUN
+  // ==========================================================
+
+  async function handleSaveMarketData() {
+    if (!selectedBatchId) return;
+    try {
+      await marketData.save({
+        markets: toValidMarkets(markets),
+        routes: toValidRoutes(routes),
+        localMarket: toValidMarket(localMarket) || null,
+      });
+    } catch {
+      // surfaced via marketData.saveError in the UI
+    }
+  }
+
+  // Runs ONLY the deterministic Python decision engine (POST /decision)
+  // against the batch's existing shelf-life assessment — no images, no
+  // CV, no LLM. Requires "Run AI analysis" to have completed at least
+  // once (the decision engine needs a stored shelf-life assessment).
+  async function handleRunDecisionOnly() {
+    if (!selectedBatchId) return;
+    try {
+      await marketData.decide({
+        markets: toValidMarkets(markets),
+        routes: toValidRoutes(routes),
+        localMarket: toValidMarket(localMarket) || null,
+      });
+    } catch {
+      // surfaced via marketData.decisionError in the UI
+    }
+  }
+
+  const canRunDecision = Boolean(selectedBatchId) && Boolean(result);
 
   // ==========================================================
   // RESET
@@ -1218,6 +1601,75 @@ export default function InspectProduce() {
             </div>
           )}
         </Card>
+
+
+        {/* STEP 4 — MARKETS & ROUTES */}
+        {selectedBatchId && (
+          <MarketsRoutesSection
+            markets={markets}
+            routes={routes}
+            localMarket={localMarket}
+            onMarketsChange={setMarkets}
+            onRoutesChange={setRoutes}
+            onLocalMarketChange={setLocalMarket}
+            onSaveMarketData={handleSaveMarketData}
+            savingMarketData={marketData.saving}
+            saveMarketDataError={marketData.saveError}
+            onRunDecision={handleRunDecisionOnly}
+            decisionLoading={marketData.decisionLoading}
+            canRunDecision={canRunDecision}
+          />
+        )}
+
+        {/* DECISION-ONLY RESULT (from Re-run decision, no CV re-run) */}
+        {marketData.decisionError && !marketData.decisionLoading && (
+          <Card>
+            <div className="flex items-start gap-3">
+              <div className="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+                <AlertTriangle size={18} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-ink">Decision engine failed</p>
+                <p className="text-xs text-muted mt-1 leading-5">
+                  {marketData.decisionError.message ||
+                    "Could not compute a decision. Make sure the backend and Python AI service are running."}
+                </p>
+              </div>
+            </div>
+          </Card>
+        )}
+        {marketData.decision && !marketData.decisionLoading && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl border border-emerald-200 bg-emerald-50 p-4"
+            >
+              <div className="flex items-center gap-3">
+                <RefreshCw size={18} className="text-emerald-700 shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-emerald-800">
+                    Decision recomputed
+                  </p>
+                  <p className="text-xs text-emerald-700 mt-0.5">
+                    Ran only the deterministic Python decision engine with the
+                    market/route data above — CV and shelf-life were not re-run.
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+            <PredictionResult
+              result={{
+                spoilageRisk: result?.spoilageRisk ?? null,
+                riskLevel: result?.riskLevel ?? null,
+                decision: marketData.decision,
+                reasoning: marketData.decision.reasoning,
+                _raw: result?._raw ?? {},
+              }}
+              onAnalyzeAgain={null}
+            />
+          </>
+        )}
 
 
         {/* ANALYZE ACTION */}

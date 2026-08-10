@@ -6,6 +6,18 @@
  * ML-backed path — separate from prediction.controller.js's existing
  * heuristic-only /api/predictions/:batchId/run, which stays as a
  * lightweight fallback for batches with no images.
+ *
+ * Field-name mapping (frontend FormData key → controller reads):
+ *   temperature           → temperatureC     (alias)
+ *   temperatureC          → temperatureC
+ *   humidity              → humidityPercent  (alias)
+ *   humidityPercent       → humidityPercent
+ *   daysSinceHarvest      → harvestAgeDays   (alias)
+ *   harvestAgeDays        → harvestAgeDays
+ *   transportDurationHours→ transportDurationHours
+ *   storageDurationHours  → storageDurationHours
+ *   storageType           → storageType
+ *   storageLocation       → storageLocation  (informational, not forwarded to Python)
  */
 import { getBatchById } from "../services/batch.service.js";
 import { updateBatchPredictionCache } from "../services/batch.service.js";
@@ -32,11 +44,28 @@ const riskLevelFromDecision = (shelfLife) => {
 };
 
 /**
+ * Read a numeric body field, accepting either of two alternate names.
+ * Returns undefined (not null) when absent so callers can use `?? undefined`.
+ */
+const readNumber = (body, primaryKey, aliasKey) => {
+    const raw = body[primaryKey] ?? body[aliasKey];
+    if (raw === undefined || raw === null || raw === "") return undefined;
+    const n = Number(raw);
+    return Number.isNaN(n) ? undefined : n;
+};
+
+/**
  * POST /api/batches/:batchId/analyze
- * multipart/form-data: images[] (required), plus optional storage fields
- * (harvestAgeDays, temperatureC, humidityPercent, storageDurationHours,
- * transportDurationHours, storageType) and optional markets/routes/
- * localMarket (each a JSON string) for the decision engine.
+ * multipart/form-data: images[] (required), plus optional storage fields.
+ *
+ * Accepts both the frontend's camelCase aliases AND the backend-canonical names:
+ *   temperature / temperatureC
+ *   humidity / humidityPercent
+ *   daysSinceHarvest / harvestAgeDays
+ *   transportDurationHours
+ *   storageDurationHours
+ *   storageType
+ *   markets / routes / localMarket (each a JSON string)
  */
 export const analyzeBatchController = async (req, res, next) => {
     try {
@@ -49,26 +78,35 @@ export const analyzeBatchController = async (req, res, next) => {
             return sendError(res, 422, "At least one produce image is required (field name 'images').");
         }
 
+        // ----------------------------------------------------------------
+        // Resolve storage fields — accept both camelCase aliases (frontend)
+        // and the canonical backend names.
+        // ----------------------------------------------------------------
         const storage = {
-            harvestAgeDays: req.body.harvestAgeDays ? Number(req.body.harvestAgeDays) : undefined,
-            temperatureC: req.body.temperatureC
-                ? Number(req.body.temperatureC)
-                : batch.storageTemperatureCelsius ?? undefined,
-            humidityPercent: req.body.humidityPercent
-                ? Number(req.body.humidityPercent)
-                : batch.storageHumidityPercent ?? undefined,
-            storageDurationHours: req.body.storageDurationHours
-                ? Number(req.body.storageDurationHours)
-                : undefined,
-            transportDurationHours: req.body.transportDurationHours
-                ? Number(req.body.transportDurationHours)
-                : undefined,
+            harvestAgeDays: readNumber(req.body, "harvestAgeDays", "daysSinceHarvest"),
+            temperatureC:
+                readNumber(req.body, "temperatureC", "temperature") ??
+                (batch.storageTemperatureCelsius != null ? batch.storageTemperatureCelsius : undefined),
+            humidityPercent:
+                readNumber(req.body, "humidityPercent", "humidity") ??
+                (batch.storageHumidityPercent != null ? batch.storageHumidityPercent : undefined),
+            storageDurationHours: readNumber(req.body, "storageDurationHours", null),
+            transportDurationHours: readNumber(req.body, "transportDurationHours", null),
             storageType: req.body.storageType || undefined,
         };
 
         const markets = parseJSONField(req.body.markets, []);
         const routes = parseJSONField(req.body.routes, []);
         const localMarket = parseJSONField(req.body.localMarket, null);
+
+        logger.info("[EXPRESS] storage inputs resolved", {
+            batchId,
+            harvestAgeDays: storage.harvestAgeDays,
+            temperatureC: storage.temperatureC,
+            humidityPercent: storage.humidityPercent,
+            transportDurationHours: storage.transportDurationHours,
+            storageType: storage.storageType,
+        });
 
         const result = await analyzeBatch({
             batchId: batch._id.toString(),
@@ -107,6 +145,8 @@ export const analyzeBatchController = async (req, res, next) => {
                 temperature: storage.temperatureC ?? null,
                 humidity: storage.humidityPercent ?? null,
                 daysSinceHarvest: storage.harvestAgeDays ?? null,
+                transportDurationHours: storage.transportDurationHours ?? null,
+                storageType: storage.storageType ?? null,
             },
         });
 

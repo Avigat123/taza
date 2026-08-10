@@ -65,6 +65,9 @@ function normalizePrediction(data) {
     );
 
 
+  // The backend stores the full DecisionResult (recommendation, allocations,
+  // impact, unallocated, reasoning, constraints, missing_information).
+  // Pass it through as-is — InspectProduce reads sub-fields directly.
   const decision =
     prediction.decision ??
     prediction.recommendation ??
@@ -195,30 +198,45 @@ function normalizePrediction(data) {
 
     // --------------------------------------------------------
     // Decision engine
+    //
+    // Pass the full DecisionResult through so the UI can render
+    // recommendation, allocations, impact, unallocated, reasoning,
+    // constraints and missing_information without re-deriving them.
+    // The legacy scalar aliases are kept for backwards compatibility
+    // with heuristic_mock predictions that only have decision.action.
     // --------------------------------------------------------
 
-    decision: {
-      action:
-        decision?.action ??
-        decision?.recommendedAction ??
-        decision?.recommended_action ??
-        prediction.action ??
-        prediction.recommendedAction ??
-        prediction.recommended_action ??
-        null,
+    decision: decision
+      ? {
+          // Pass everything through so the UI renders the full result.
+          ...decision,
 
-      reasoning:
-        decision?.reasoning ??
-        decision?.explanation ??
-        prediction.decisionReasoning ??
-        prediction.decision_reasoning ??
-        null,
+          // Backwards-compat scalar aliases kept for old heuristic_mock records.
+          action:
+            decision.recommendation?.primary_action ??
+            decision.action ??
+            decision.recommendedAction ??
+            decision.recommended_action ??
+            prediction.action ??
+            null,
 
-      priority:
-        decision?.priority ??
-        prediction.priority ??
-        null,
-    },
+          reasoning:
+            decision.reasoning ??
+            decision.explanation ??
+            prediction.decisionReasoning ??
+            null,
+
+          priority:
+            decision.recommendation?.urgency ??
+            decision.priority ??
+            prediction.priority ??
+            null,
+        }
+      : {
+          action: prediction.action ?? prediction.recommendedAction ?? null,
+          reasoning: prediction.decisionReasoning ?? null,
+          priority: prediction.priority ?? null,
+        },
 
 
     // --------------------------------------------------------
@@ -262,6 +280,26 @@ function normalizePrediction(data) {
           )
         ? prediction.sources
         : [],
+
+
+    // --------------------------------------------------------
+    // CV class distribution (Layer 1)
+    // --------------------------------------------------------
+
+    classDistribution:
+      prediction.classDistribution ??
+      prediction.class_distribution ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Full shelf-life assessment (Layer 2)
+    // --------------------------------------------------------
+
+    shelfLifeAssessment:
+      prediction.shelfLifeAssessment ??
+      prediction.shelf_life_assessment ??
+      null,
 
 
     // --------------------------------------------------------

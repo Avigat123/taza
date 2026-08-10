@@ -513,6 +513,36 @@ export default function BatchDetails() {
       spoilageRisk
     );
 
+  // Decision-engine sub-fields (stored under decision.* for ml_python_service
+  // predictions, or directly on prediction for legacy heuristic_mock records)
+  const decisionObj = prediction?.decision || {};
+  const decisionAction =
+    decisionObj?.recommendation?.primary_action ??
+    decisionObj?.action ??
+    null;
+  const decisionReasoning =
+    decisionObj?.reasoning ??
+    prediction?.reasoning ??
+    null;
+  const decisionUrgency =
+    decisionObj?.recommendation?.urgency ??
+    prediction?.urgency ??
+    null;
+  const decisionImpact =
+    decisionObj?.impact ??
+    prediction?.impact ??
+    null;
+  const decisionAllocations =
+    decisionObj?.allocations ??
+    prediction?.allocations ??
+    [];
+  const decisionFactors =
+    prediction?.factors ?? [];
+  const batchConditionLabel =
+    prediction?.shelfLifeAssessment?.condition?.batch_condition ??
+    prediction?.batchCondition ??
+    null;
+
 
   return (
     <PageContainer
@@ -876,7 +906,7 @@ export default function BatchDetails() {
                     </p>
 
                     <p className="text-sm font-semibold text-ink mt-1">
-                      {prediction.batchCondition ||
+                      {batchConditionLabel ||
                         "Unknown"}
                     </p>
                   </div>
@@ -899,7 +929,7 @@ export default function BatchDetails() {
                     </p>
 
                     <p className="text-sm font-semibold text-ink mt-1">
-                      {prediction.urgency ||
+                      {decisionUrgency ||
                         "Unknown"}
                     </p>
                   </div>
@@ -946,26 +976,20 @@ export default function BatchDetails() {
                   </p>
 
                   <h3 className="text-lg font-semibold text-ink mt-1">
-                    {prediction.decision
-                      ?.action ||
+                    {decisionAction ||
                       "Monitor"}
                   </h3>
 
-                  {prediction.decision
-                    ?.reasoning && (
+                  {decisionReasoning && (
                     <p className="text-sm text-ink leading-6 mt-2">
-                      {
-                        prediction
-                          .decision
-                          .reasoning
-                      }
+                      {decisionReasoning}
                     </p>
                   )}
 
                 </div>
 
 
-                {prediction.impact && (
+                {decisionImpact && (
                   <div className="grid grid-cols-2 gap-3 mt-4">
 
                     <div className="rounded-lg border border-border p-3">
@@ -974,8 +998,7 @@ export default function BatchDetails() {
                       </p>
 
                       <p className="text-sm font-mono font-semibold text-ink mt-1">
-                        {prediction
-                          .impact
+                        {decisionImpact
                           ?.expected_waste_kg ??
                           "—"}{" "}
                         kg
@@ -988,13 +1011,11 @@ export default function BatchDetails() {
                       </p>
 
                       <p className="text-sm font-mono font-semibold text-ink mt-1">
-                        {prediction
-                          .impact
+                        {decisionImpact
                           ?.estimated_recovered_value !=
                         null
                           ? `₹${Number(
-                              prediction
-                                .impact
+                              decisionImpact
                                 .estimated_recovered_value
                             ).toLocaleString(
                               "en-IN"
@@ -1078,7 +1099,7 @@ export default function BatchDetails() {
                 FACTORS
             ---------------------------------------------- */}
 
-            {prediction.factors?.length >
+            {decisionFactors?.length >
               0 && (
               <Card>
                 <CardHeader
@@ -1088,7 +1109,7 @@ export default function BatchDetails() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-                  {prediction.factors.map(
+                  {decisionFactors.map(
                     (
                       factor,
                       index
@@ -1194,7 +1215,7 @@ export default function BatchDetails() {
                 ALLOCATIONS
             ---------------------------------------------- */}
 
-            {prediction.allocations?.length >
+            {decisionAllocations?.length >
               0 && (
               <Card>
                 <CardHeader
@@ -1204,7 +1225,7 @@ export default function BatchDetails() {
 
                 <div className="space-y-2">
 
-                  {prediction.allocations.map(
+                  {decisionAllocations.map(
                     (
                       allocation,
                       index

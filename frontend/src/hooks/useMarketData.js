@@ -83,6 +83,11 @@ export function useMarketData(batchId) {
     [batchId]
   );
 
+  const resetDecision = useCallback(() => {
+    setDecision(null);
+    setDecisionError(null);
+  }, []);
+
   return {
     markets,
     routes,
@@ -100,5 +105,6 @@ export function useMarketData(batchId) {
     decisionLoading,
     decisionError,
     decide,
+    resetDecision,
   };
 }

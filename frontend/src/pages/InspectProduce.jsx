@@ -717,7 +717,7 @@ function AllocationRow({ allocation, index }) {
 // RESULT PANEL
 // ============================================================
 
-function PredictionResult({ result, onAnalyzeAgain }) {
+function PredictionResult({ result, onAnalyzeAgain, recomputed = false }) {
   if (!result) return null;
 
   const risk = result.spoilageRisk;
@@ -854,6 +854,14 @@ function PredictionResult({ result, onAnalyzeAgain }) {
           <CardHeader
             title="Decision engine"
             subtitle="Deterministic action plan — zero LLM-invented numbers"
+            action={
+              recomputed && (
+                <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-full">
+                  <RefreshCw size={11} />
+                  Recomputed with new market data
+                </span>
+              )
+            }
           />
 
           {/* Primary action banner */}
@@ -1283,6 +1291,10 @@ export default function InspectProduce() {
       localMarket: toValidMarket(localMarket),
     };
 
+    // A fresh full analysis supersedes any decision-only re-run —
+    // clear it so the merged result doesn't show a stale decision.
+    marketData.resetDecision();
+
     await runInspection(selectedBatchId, files, input);
   }
 
@@ -1328,6 +1340,7 @@ export default function InspectProduce() {
 
   function resetAnalysis() {
     reset();
+    marketData.resetDecision();
     setFiles([]);
     setTemperature("");
     setHumidity("");
@@ -1621,7 +1634,8 @@ export default function InspectProduce() {
           />
         )}
 
-        {/* DECISION-ONLY RESULT (from Re-run decision, no CV re-run) */}
+        {/* Decision-only re-run: error banner (result itself is merged
+            into the single results panel below, not shown as a second card) */}
         {marketData.decisionError && !marketData.decisionLoading && (
           <Card>
             <div className="flex items-start gap-3">
@@ -1637,38 +1651,6 @@ export default function InspectProduce() {
               </div>
             </div>
           </Card>
-        )}
-        {marketData.decision && !marketData.decisionLoading && (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-xl border border-emerald-200 bg-emerald-50 p-4"
-            >
-              <div className="flex items-center gap-3">
-                <RefreshCw size={18} className="text-emerald-700 shrink-0" />
-                <div>
-                  <p className="text-sm font-medium text-emerald-800">
-                    Decision recomputed
-                  </p>
-                  <p className="text-xs text-emerald-700 mt-0.5">
-                    Ran only the deterministic Python decision engine with the
-                    market/route data above — CV and shelf-life were not re-run.
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-            <PredictionResult
-              result={{
-                spoilageRisk: result?.spoilageRisk ?? null,
-                riskLevel: result?.riskLevel ?? null,
-                decision: marketData.decision,
-                reasoning: marketData.decision.reasoning,
-                _raw: result?._raw ?? {},
-              }}
-              onAnalyzeAgain={null}
-            />
-          </>
         )}
 
 
@@ -1756,7 +1738,21 @@ export default function InspectProduce() {
               </div>
             </motion.div>
 
-            <PredictionResult result={result} onAnalyzeAgain={resetAnalysis} />
+            <PredictionResult
+              // Freshness / shelf-life / CV data always comes from the
+              // original analysis. If "Re-run decision" has been used,
+              // ONLY the decision block is swapped for the fresh one —
+              // everything else stays exactly as the analysis produced,
+              // so the panel updates in place instead of stacking a
+              // second, incomplete card below it.
+              result={
+                marketData.decision
+                  ? { ...result, decision: marketData.decision }
+                  : result
+              }
+              onAnalyzeAgain={resetAnalysis}
+              recomputed={Boolean(marketData.decision)}
+            />
           </>
         )}
 

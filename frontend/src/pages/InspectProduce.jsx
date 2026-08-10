@@ -579,17 +579,23 @@ function MarketsRoutesSection({
 
         <Button
           type="button"
-          icon={RefreshCw}
+          icon={Zap}
           size="sm"
           onClick={onRunDecision}
           disabled={!canRunDecision || decisionLoading}
         >
-          {decisionLoading ? "Running decision…" : "Re-run decision only"}
+          {decisionLoading ? "Calculating…" : "Calculate Best Action"}
         </Button>
       </div>
       {!canRunDecision && (
         <p className="text-[11px] text-muted mt-2">
           Run AI analysis at least once first — the decision engine needs a stored shelf-life assessment.
+        </p>
+      )}
+      {canRunDecision && markets.length === 0 && !localMarket && (
+        <p className="text-[11px] text-amber-600 mt-2 flex items-center gap-1.5">
+          <AlertTriangle size={12} />
+          No markets entered — the engine will return SELL/DISCOUNT/RESCUE guidance for the local batch only, since there's nothing to redistribute to.
         </p>
       )}
     </Card>
@@ -778,13 +784,12 @@ function PredictionResult({ result, onAnalyzeAgain, recomputed = false }) {
                     initial={{ width: 0 }}
                     animate={{ width: `${Math.min(100, Math.round(Number(result.freshness)))}%` }}
                     transition={{ duration: 0.8, ease: "easeOut" }}
-                    className={`h-full rounded-full ${
-                      result.freshness >= 70
+                    className={`h-full rounded-full ${result.freshness >= 70
                         ? "bg-emerald-500"
                         : result.freshness >= 40
-                        ? "bg-amber-400"
-                        : "bg-red-500"
-                    }`}
+                          ? "bg-amber-400"
+                          : "bg-red-500"
+                      }`}
                   />
                 </div>
               </div>
@@ -799,11 +804,11 @@ function PredictionResult({ result, onAnalyzeAgain, recomputed = false }) {
             subtext={
               result.shelfLifeRange
                 ? `Range: ${Array.isArray(result.shelfLifeRange)
-                    ? `${result.shelfLifeRange[0]}–${result.shelfLifeRange[1]} days`
-                    : result.shelfLifeRange}`
+                  ? `${result.shelfLifeRange[0]}–${result.shelfLifeRange[1]} days`
+                  : result.shelfLifeRange}`
                 : shelfLifeAssessment?.assessment?.estimate_range_days
-                ? `Range: ${shelfLifeAssessment.assessment.estimate_range_days[0]}–${shelfLifeAssessment.assessment.estimate_range_days[1]} days`
-                : null
+                  ? `Range: ${shelfLifeAssessment.assessment.estimate_range_days[0]}–${shelfLifeAssessment.assessment.estimate_range_days[1]} days`
+                  : null
             }
           />
 
@@ -837,10 +842,10 @@ function PredictionResult({ result, onAnalyzeAgain, recomputed = false }) {
             <span className="text-sm font-mono font-semibold text-ink">
               {typeof result.confidence === "number"
                 ? `${Math.round(
-                    result.confidence <= 1
-                      ? result.confidence * 100
-                      : result.confidence
-                  )}%`
+                  result.confidence <= 1
+                    ? result.confidence * 100
+                    : result.confidence
+                )}%`
                 : result.confidence}
             </span>
           </div>
@@ -1383,7 +1388,7 @@ export default function InspectProduce() {
               </p>
               <p className="text-xs text-muted mt-1 leading-5">
                 Images run through <strong>CV classification → RAG-grounded shelf-life assessment →
-                deterministic decision engine</strong>. All numbers are Python-computed; no values are
+                  deterministic decision engine</strong>. All numbers are Python-computed; no values are
                 invented by the LLM.
               </p>
             </div>

@@ -128,6 +128,13 @@ export const runDecisionController = async (req, res, next) => {
             localMarket,
         });
 
+        // Persist the real decision result onto the same Prediction record
+        // that already carries the shelf-life assessment, so refreshing the
+        // batch page (GET /api/predictions/:batchId) surfaces the same
+        // decision without needing to re-call Python.
+        latest.decision = result;
+        await latest.save();
+
         return sendSuccess(res, 200, result, "Decision computed", {
             requestSentToPython,
         });

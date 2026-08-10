@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Retriever.
+TAZA AI Service - Retriever.
 
 Builds a retrieval query from produce type + visual condition + storage
 context, then searches the vector store, restricted to that produce's

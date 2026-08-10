@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 agent tools.
+TAZA AI Service - Layer 3 agent tools.
 
 These are the ONLY functions the AI operations agent is allowed to use to
 get numbers. Every tool either reads directly from the validated

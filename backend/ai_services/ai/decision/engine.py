@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 deterministic decision engine.
+TAZA AI Service - Layer 3 deterministic decision engine.
 
 This module contains ZERO LLM calls. Given a validated DecisionRequest it
 always returns the same DecisionResult for the same input - this is what

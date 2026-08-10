@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Shelf-life layer tests.
+TAZA AI Service - Shelf-life layer tests.
 
 Covers the 12 required scenarios:
  1. Normal banana assessment

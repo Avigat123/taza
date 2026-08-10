@@ -1,5 +1,5 @@
 """
-FreshFlow OS - AI service entrypoint.
+TAZA AI Service - AI service entrypoint.
 
 Run with:
 uvicorn ai.main:app --reload
@@ -32,6 +32,7 @@ print(">>> GEMINI KEY PRESENT:", bool(os.getenv("GEMINI_API_KEY")))
 
 from fastapi import FastAPI
 from ai.api.routes import router
+from ai.api.analyze import router as analyze_router
 from ai.decision.routes import router as decision_router
 logging.basicConfig(
     level=os.environ.get("LOG_LEVEL", "INFO"),
@@ -39,19 +40,31 @@ logging.basicConfig(
 )
 
 app = FastAPI(
-    title="FreshFlow OS - AI Shelf-Life Service",
-    description="Layer 2: batch quality -> RAG-grounded shelf-life & spoilage-risk assessment",
+    title="TAZA AI Service",
+    description=(
+        "Layer 1: CV freshness classification | "
+        "Layer 2: RAG-grounded shelf-life & spoilage-risk assessment | "
+        "Layer 3: deterministic decision engine + optional AI explanation"
+    ),
     version="0.1.0",
 )
 
 app.include_router(router)
+app.include_router(analyze_router)
 app.include_router(decision_router)
 
 @app.get("/")
 def root():
     return {
-        "service": "FreshFlow OS AI Shelf-Life Service",
-        "endpoints": ["/assess-shelf-life (POST)", "/health (GET)", "/docs"],
+        "service": "TAZA AI Service",
+        "endpoints": [
+            "/analyze-batch (POST) - full pipeline: CV -> shelf life -> decision",
+            "/assess-shelf-life (POST) - Layer 2 only",
+            "/decision (POST) - Layer 3 deterministic",
+            "/decision/agent (POST) - Layer 3 + AI explanation",
+            "/health (GET)",
+            "/docs",
+        ],
     }
 
 

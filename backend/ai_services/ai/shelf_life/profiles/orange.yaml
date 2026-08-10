@@ -1,4 +1,4 @@
-# FreshFlow OS - Produce profile: Orange
+# TAZA AI Service - Produce profile: Orange
 # Sources: ai/knowledge/orange/*.md (UC Davis PREC Orange & Mandarin fact sheets)
 
 produce: "orange"

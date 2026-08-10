@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Build the vector index from ai/knowledge/.
+TAZA AI Service - Build the vector index from ai/knowledge/.
 
 Run this once (and again whenever knowledge/*.md files change):
     python -m ai.rag.build_index

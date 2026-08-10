@@ -1,4 +1,4 @@
-# FreshFlow OS - Produce profile: Apple
+# TAZA AI Service - Produce profile: Apple
 # Sources: ai/knowledge/apple/*.md (UC Davis PREC, Prange & Wright 2023 review)
 
 produce: "apple"

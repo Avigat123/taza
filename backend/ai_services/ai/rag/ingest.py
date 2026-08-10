@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Knowledge ingestion.
+TAZA AI Service - Knowledge ingestion.
 
 Reads markdown files from ai/knowledge/<produce>/*.md, parses their YAML
 frontmatter for source metadata, and chunks the body text. Each chunk

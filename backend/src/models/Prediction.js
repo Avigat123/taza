@@ -95,6 +95,40 @@ const predictionSchema = new mongoose.Schema(
             trim: true,
             default: null,
         },
+
+        // ── Full AI-service payload (Layer 1 CV + Layer 2 shelf-life + ─────────
+        // Layer 3 decision engine), stored as-is when source is
+        // "ml_python_service" so the dashboard can render the complete
+        // action plan without re-deriving it. Optional/null for
+        // "heuristic_mock" predictions.
+        visualClass: {
+            type: String,
+            default: null,
+        },
+
+        classDistribution: {
+            type: mongoose.Schema.Types.Mixed,
+            default: null,
+        },
+
+        shelfLifeAssessment: {
+            // Full Layer 2 ShelfLifeAssessment (factors, evidence, reasoning, etc.)
+            type: mongoose.Schema.Types.Mixed,
+            default: null,
+        },
+
+        decision: {
+            // Full Layer 3 DecisionResult (recommendation, allocations, impact, etc.)
+            type: mongoose.Schema.Types.Mixed,
+            default: null,
+        },
+
+        aiInsights: {
+            // Populated lazily when the user clicks "Get AI Insights" —
+            // { explanation, notes, provider, model, generatedAt }
+            type: mongoose.Schema.Types.Mixed,
+            default: null,
+        },
     },
     {
         timestamps: true,

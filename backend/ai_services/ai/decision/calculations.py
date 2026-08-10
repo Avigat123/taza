@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 deterministic calculations.
+TAZA AI Service - Layer 3 deterministic calculations.
 
 Pure functions only. No LLM calls, no I/O. Every number the decision
 engine reports back to the caller should be traceable to a function here.

@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Vector store (FAISS).
+TAZA AI Service - Vector store (FAISS).
 
 Kept intentionally simple: a flat FAISS index (exact search) is more than
 sufficient for a knowledge base of dozens-to-low-hundreds of chunks. No need

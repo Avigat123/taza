@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 decision-engine schemas.
+TAZA AI Service - Layer 3 decision-engine schemas.
 
 Reuses Layer 2's SpoilageRisk / Urgency / BatchCondition enums from
 ai.shelf_life.schema rather than redefining them, so the two layers can

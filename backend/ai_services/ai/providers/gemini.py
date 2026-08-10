@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Google Gemini provider (free tier).
+TAZA AI Service - Google Gemini provider (free tier).
 
 Requires GEMINI_API_KEY environment variable. Never hard-code the key.
 Uses Gemini's native JSON response mode where available.

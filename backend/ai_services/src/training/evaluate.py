@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Rigorous test-set evaluation.
+TAZA AI Service - Rigorous test-set evaluation.
 
 Evaluates the saved best model on the held-out TEST split only (never
 seen during training or model selection). Reports:

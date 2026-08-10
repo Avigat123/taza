@@ -1,44 +1,714 @@
 import apiClient from "./client";
 
-const USE_MOCK = true; // ML TEAM: flip to false once the inference server (ml/inference/server.py) is reachable
 
-// Simulates the full pipeline response: vision detection + freshness +
-// shelf-life + spoilage, as described in section 16 of the project doc.
-function buildMockPrediction() {
-  const freshness = Math.floor(60 + Math.random() * 35);
-  const shelfLifeDays = +(1 + Math.random() * 5).toFixed(1);
-  const spoilageRisk = Math.floor(5 + Math.random() * 40);
+// ============================================================
+// HELPERS
+// ============================================================
+
+function unwrapResponse(response) {
+  return (
+    response?.data?.data ??
+    response?.data ??
+    null
+  );
+}
+
+
+function normalizePercentage(value) {
+  if (
+    value === null ||
+    value === undefined ||
+    value === ""
+  ) {
+    return null;
+  }
+
+  const number = Number(value);
+
+  if (Number.isNaN(number)) {
+    return null;
+  }
+
+  // Some APIs return probability as 0–1,
+  // while the frontend displays percentage 0–100.
+  if (
+    number >= 0 &&
+    number <= 1
+  ) {
+    return number * 100;
+  }
+
+  return number;
+}
+
+
+function normalizePrediction(data) {
+  if (!data) {
+    return null;
+  }
+
+  // Some backend responses wrap prediction
+  // inside { prediction: {...} }.
+  const prediction =
+    data.prediction ??
+    data.result ??
+    data;
+
+
+  const spoilageRisk =
+    prediction.spoilageRisk ??
+    prediction.spoilage_risk ??
+    normalizePercentage(
+      prediction.spoilageProbability ??
+      prediction.spoilage_probability
+    );
+
+
+  // The backend stores the full DecisionResult (recommendation, allocations,
+  // impact, unallocated, reasoning, constraints, missing_information).
+  // Pass it through as-is — InspectProduce reads sub-fields directly.
+  const decision =
+    prediction.decision ??
+    prediction.recommendation ??
+    null;
+
+
+  const inputSignals =
+    prediction.inputSignals ??
+    prediction.input_signals ??
+    prediction.inputs ??
+    {};
+
+
   return {
-    produce: "Mango",
-    ripeness: Math.floor(65 + Math.random() * 30),
-    visibleDefects: Math.floor(Math.random() * 4),
-    surfaceQuality: "Good",
-    visualQualityScore: Math.floor(75 + Math.random() * 20),
-    freshness,
-    shelfLifeDays,
+    // --------------------------------------------------------
+    // Identity
+    // --------------------------------------------------------
+
+    id:
+      prediction.id ??
+      prediction._id ??
+      prediction.predictionId,
+
+    batchId:
+      prediction.batchId ??
+      prediction.batch_id,
+
+
+    // --------------------------------------------------------
+    // Visual / CV result
+    // --------------------------------------------------------
+
+    visualClass:
+      prediction.visualClass ??
+      prediction.visual_class ??
+      prediction.className ??
+      prediction.class_name ??
+      prediction.predictedClass ??
+      prediction.predicted_class ??
+      null,
+
+    freshness:
+      prediction.freshness ??
+      prediction.freshnessScore ??
+      prediction.freshness_score ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Shelf life
+    // --------------------------------------------------------
+
+    shelfLifeDays:
+      prediction.shelfLifeDays ??
+      prediction.shelf_life_days ??
+      prediction.predictedShelfLife ??
+      prediction.predicted_shelf_life ??
+      null,
+
+    shelfLifeRange:
+      prediction.shelfLifeRange ??
+      prediction.shelf_life_range ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Spoilage
+    // --------------------------------------------------------
+
     spoilageRisk,
-    confidence: "Medium",
-    riskFactors: {
-      visualDefectRisk: Math.floor(Math.random() * 20),
-      temperatureStress: Math.floor(Math.random() * 25),
-      ageRisk: Math.floor(Math.random() * 15),
-      storageRisk: Math.floor(Math.random() * 15),
+
+    spoilageProbability:
+      prediction.spoilageProbability ??
+      prediction.spoilage_probability ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Risk / confidence
+    // --------------------------------------------------------
+
+    riskLevel:
+      prediction.riskLevel ??
+      prediction.risk_level ??
+      (
+        spoilageRisk == null
+          ? null
+          : spoilageRisk >= 70
+          ? "HIGH"
+          : spoilageRisk >= 35
+          ? "MEDIUM"
+          : "LOW"
+      ),
+
+    confidence:
+      prediction.confidence ??
+      prediction.modelConfidence ??
+      prediction.model_confidence ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Condition / urgency
+    // --------------------------------------------------------
+
+    batchCondition:
+      prediction.batchCondition ??
+      prediction.batch_condition ??
+      null,
+
+    urgency:
+      prediction.urgency ??
+      prediction.priority ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Reasoning
+    // --------------------------------------------------------
+
+    reasoning:
+      prediction.reasoning ??
+      prediction.explanation ??
+      prediction.explanationText ??
+      prediction.explanation_text ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Decision engine
+    //
+    // Pass the full DecisionResult through so the UI can render
+    // recommendation, allocations, impact, unallocated, reasoning,
+    // constraints and missing_information without re-deriving them.
+    // The legacy scalar aliases are kept for backwards compatibility
+    // with heuristic_mock predictions that only have decision.action.
+    // --------------------------------------------------------
+
+    decision: decision
+      ? {
+          // Pass everything through so the UI renders the full result.
+          ...decision,
+
+          // Backwards-compat scalar aliases kept for old heuristic_mock records.
+          action:
+            decision.recommendation?.primary_action ??
+            decision.action ??
+            decision.recommendedAction ??
+            decision.recommended_action ??
+            prediction.action ??
+            null,
+
+          reasoning:
+            decision.reasoning ??
+            decision.explanation ??
+            prediction.decisionReasoning ??
+            null,
+
+          priority:
+            decision.recommendation?.urgency ??
+            decision.priority ??
+            prediction.priority ??
+            null,
+        }
+      : {
+          action: prediction.action ?? prediction.recommendedAction ?? null,
+          reasoning: prediction.decisionReasoning ?? null,
+          priority: prediction.priority ?? null,
+        },
+
+
+    // --------------------------------------------------------
+    // Impact
+    // --------------------------------------------------------
+
+    impact:
+      prediction.impact ??
+      prediction.estimatedImpact ??
+      prediction.estimated_impact ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Factors
+    // --------------------------------------------------------
+
+    factors:
+      Array.isArray(
+        prediction.factors
+      )
+        ? prediction.factors
+        : Array.isArray(
+            prediction.riskFactors
+          )
+        ? prediction.riskFactors
+        : [],
+
+
+    // --------------------------------------------------------
+    // RAG evidence
+    // --------------------------------------------------------
+
+    evidence:
+      Array.isArray(
+        prediction.evidence
+      )
+        ? prediction.evidence
+        : Array.isArray(
+            prediction.sources
+          )
+        ? prediction.sources
+        : [],
+
+
+    // --------------------------------------------------------
+    // CV class distribution (Layer 1)
+    // --------------------------------------------------------
+
+    classDistribution:
+      prediction.classDistribution ??
+      prediction.class_distribution ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Full shelf-life assessment (Layer 2)
+    // --------------------------------------------------------
+
+    shelfLifeAssessment:
+      prediction.shelfLifeAssessment ??
+      prediction.shelf_life_assessment ??
+      null,
+
+
+    // --------------------------------------------------------
+    // Allocation / redistribution
+    // --------------------------------------------------------
+
+    allocations:
+      Array.isArray(
+        prediction.allocations
+      )
+        ? prediction.allocations
+        : Array.isArray(
+            prediction.recommendedAllocations
+          )
+        ? prediction.recommendedAllocations
+        : [],
+
+
+    // --------------------------------------------------------
+    // Input signals
+    // --------------------------------------------------------
+
+    inputSignals: {
+      temperature:
+        inputSignals.temperature ??
+        inputSignals.temperatureC ??
+        inputSignals.temperature_c ??
+        null,
+
+      humidity:
+        inputSignals.humidity ??
+        inputSignals.humidityPercent ??
+        inputSignals.humidity_percent ??
+        null,
+
+      daysSinceHarvest:
+        inputSignals.daysSinceHarvest ??
+        inputSignals.days_since_harvest ??
+        null,
+
+      transportDurationHours:
+        inputSignals.transportDurationHours ??
+        inputSignals.transport_duration_hours ??
+        null,
+
+      storageType:
+        inputSignals.storageType ??
+        inputSignals.storage_type ??
+        null,
+
+      storageLocation:
+        inputSignals.storageLocation ??
+        inputSignals.storage_location ??
+        null,
     },
+
+
+    // --------------------------------------------------------
+    // Metadata
+    // --------------------------------------------------------
+
+    source:
+      prediction.source ??
+      prediction.model ??
+      null,
+
+    createdAt:
+      prediction.createdAt ??
+      prediction.created_at ??
+      null,
+
+    updatedAt:
+      prediction.updatedAt ??
+      prediction.updated_at ??
+      null,
+
+
+    // Keep original response available.
+    _raw: prediction,
   };
 }
 
-export async function inspectImage(file, qualityParams = {}) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 1400)); // simulate inference latency
-    return buildMockPrediction();
+
+// ============================================================
+// ANALYZE BATCH IMAGES
+// ============================================================
+//
+// This function sends the images + batch conditions to the
+// EXISTING AI/backend pipeline.
+//
+// The AI service itself is NOT changed.
+//
+// Expected frontend flow:
+//
+// Analyze page
+//      ↓
+// runInspection()
+//      ↓
+// analyzeBatchImages()
+//      ↓
+// POST /api/predictions/:batchId/analyze
+//      ↓
+// Existing backend / AI service
+//      ↓
+// Prediction
+// ============================================================
+
+export async function analyzeBatchImages(
+  batchId,
+  files,
+  input = {}
+) {
+  if (!batchId) {
+    throw new Error(
+      "Batch ID is required."
+    );
   }
-  const form = new FormData();
-  form.append("image", file);
-  Object.entries(qualityParams).forEach(([k, v]) => form.append(k, v));
-  const { data } = await apiClient.post("/predictions/inspect", form, {
-    headers: { "Content-Type": "multipart/form-data" },
+
+
+  if (
+    !files ||
+    files.length === 0
+  ) {
+    throw new Error(
+      "At least one produce image is required."
+    );
+  }
+
+
+  const formData =
+    new FormData();
+
+
+  // ----------------------------------------------------------
+  // Images
+  //
+  // Use "images" as the primary field.
+  // The backend can receive multiple images.
+  // ----------------------------------------------------------
+
+  files.forEach((file) => {
+    if (file) {
+      formData.append(
+        "images",
+        file
+      );
+    }
   });
-  return data;
-  // POST /api/predictions/inspect (multipart)
-  // -> proxies to ml/inference/server.py: vision + freshness + shelf-life + spoilage models
+
+
+  // ----------------------------------------------------------
+  // Additional AI inputs
+  //
+  // Only append values that actually exist.
+  // This prevents empty frontend fields from overwriting
+  // backend defaults.
+  // ----------------------------------------------------------
+
+  const appendIfPresent = (
+    key,
+    value
+  ) => {
+    if (
+      value !== undefined &&
+      value !== null &&
+      value !== ""
+    ) {
+      formData.append(
+        key,
+        String(value)
+      );
+    }
+  };
+
+
+  appendIfPresent(
+    "temperature",
+    input.temperature
+  );
+
+  appendIfPresent(
+    "humidity",
+    input.humidity
+  );
+
+  appendIfPresent(
+    "storageType",
+    input.storageType
+  );
+
+  appendIfPresent(
+    "storageLocation",
+    input.storageLocation
+  );
+
+  appendIfPresent(
+    "transportDurationHours",
+    input.transportDurationHours
+  );
+
+  appendIfPresent(
+    "daysSinceHarvest",
+    input.daysSinceHarvest
+  );
+
+
+  // ----------------------------------------------------------
+  // Real market demand + route data (optional)
+  //
+  // The backend (analysis.controller.js) reads these as JSON-encoded
+  // form fields and forwards them, unmodified, into the Python
+  // DecisionRequest's markets / routes / local_market. Only sent when
+  // non-empty — an absent field means "no market data for this run",
+  // never a fabricated default.
+  // ----------------------------------------------------------
+
+  if (Array.isArray(input.markets) && input.markets.length > 0) {
+    formData.append("markets", JSON.stringify(input.markets));
+  }
+
+  if (Array.isArray(input.routes) && input.routes.length > 0) {
+    formData.append("routes", JSON.stringify(input.routes));
+  }
+
+  if (input.localMarket) {
+    formData.append("localMarket", JSON.stringify(input.localMarket));
+  }
+
+
+  // ----------------------------------------------------------
+  // Send request
+  // ----------------------------------------------------------
+
+  // IMPORTANT — Content-Type for this request must be explicitly UNSET,
+  // not omitted and not set to a literal "multipart/form-data" string.
+  //
+  //  - Omitting it (as a previous version of this file did) means axios
+  //    falls back to apiClient's INSTANCE default, "application/json"
+  //    (see api/client.js). Axios's own rule for FormData bodies is: if
+  //    the effective Content-Type says JSON, silently JSON.stringify the
+  //    FormData instead of sending it as multipart. That's what caused
+  //    "images"/"temperature"/etc to show up as plain JSON body keys on
+  //    the server, and req.files to always be empty.
+  //  - Setting it to a bare "multipart/form-data" string (an even earlier
+  //    version) avoids the JSON path, but ships with no boundary
+  //    parameter, which some environments won't fix up for you either.
+  //
+  // Setting it to `undefined` here removes the JSON default for just this
+  // call, so axios detects the FormData body itself and lets the browser
+  // attach the correct "multipart/form-data; boundary=..." header.
+  const response =
+    await apiClient.post(
+      `/batches/${batchId}/analyze`,
+      formData,
+      {
+        headers: {
+          "Content-Type": undefined,
+        },
+      }
+    );
+
+
+  const data =
+    unwrapResponse(
+      response
+    );
+
+
+  return normalizePrediction(
+    data
+  );
 }
+
+
+// ============================================================
+// GET LATEST PREDICTION
+// ============================================================
+//
+// Backend:
+// GET /api/predictions/:batchId
+//
+// Used by BatchDetails.jsx.
+// ============================================================
+
+export async function getLatestPrediction(
+  batchId
+) {
+  if (!batchId) {
+    throw new Error(
+      "Batch ID is required."
+    );
+  }
+
+
+  const response =
+    await apiClient.get(
+      `/predictions/${batchId}`
+    );
+
+
+  const data =
+    unwrapResponse(
+      response
+    );
+
+
+  // Backend may return:
+//
+// {
+//   prediction: {...}
+// }
+//
+// or directly:
+//
+// {
+//   freshness: 82,
+//   ...
+// }
+
+  return normalizePrediction(
+    data
+  );
+}
+
+
+// ============================================================
+// GET PREDICTION HISTORY
+// ============================================================
+//
+// Kept separate from latest prediction so the frontend can
+// later display historical model runs without changing the
+// analysis flow.
+// ============================================================
+
+export async function getPredictionHistory(
+  batchId
+) {
+  if (!batchId) {
+    throw new Error(
+      "Batch ID is required."
+    );
+  }
+
+
+  const response =
+    await apiClient.get(
+      `/predictions/${batchId}/history`
+    );
+
+
+  const data =
+    unwrapResponse(
+      response
+    );
+
+
+  const predictions =
+    Array.isArray(data)
+      ? data
+      : Array.isArray(
+          data?.predictions
+        )
+      ? data.predictions
+      : [];
+
+
+  return predictions.map(
+    normalizePrediction
+  );
+}
+
+
+// ============================================================
+// AI INSIGHTS
+// ============================================================
+//
+// Optional explanation endpoint.
+//
+// If your backend exposes this endpoint, the frontend can
+// request a natural-language explanation after prediction.
+//
+// This does NOT replace the actual ML prediction.
+// ============================================================
+
+export async function getBatchAiInsights(
+  batchId
+) {
+  if (!batchId) {
+    throw new Error(
+      "Batch ID is required."
+    );
+  }
+
+
+  const response =
+    await apiClient.get(
+      `/predictions/${batchId}/insights`
+    );
+
+
+  return unwrapResponse(
+    response
+  );
+}
+
+
+// ============================================================
+// EXPORT
+// ============================================================
+
+export {
+  normalizePrediction,
+};

@@ -1,5 +1,5 @@
 """
-FreshFlow OS - GLM provider (Zhipu AI, has a free tier; OpenAI-compatible API shape).
+TAZA AI Service - GLM provider (Zhipu AI, has a free tier; OpenAI-compatible API shape).
 
 Requires GLM_API_KEY environment variable.
 """

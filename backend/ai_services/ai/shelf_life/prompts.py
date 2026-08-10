@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Prompts for shelf-life LLM reasoning.
+TAZA AI Service - Prompts for shelf-life LLM reasoning.
 
 The system prompt enforces: no invented numbers, ranges over point
 estimates, explicit uncertainty, conservative bias, and structured JSON
@@ -12,7 +12,7 @@ from ai.rag.retriever import RetrievedEvidence
 from ai.shelf_life.schema import ShelfLifeRequest
 
 
-SYSTEM_PROMPT = """You are an agricultural post-harvest analysis assistant for FreshFlow OS, \
+SYSTEM_PROMPT = """You are an agricultural post-harvest analysis assistant for TAZA AI Service, \
 a system that helps reduce fresh-produce waste.
 
 Your task is ONLY to assess: visual condition, ripeness/maturity, spoilage risk, \

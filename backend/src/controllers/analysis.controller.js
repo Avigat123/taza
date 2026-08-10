@@ -75,6 +75,15 @@ export const analyzeBatchController = async (req, res, next) => {
         if (!batch) return sendError(res, 404, "Batch not found");
 
         if (!req.files || req.files.length === 0) {
+            // Log what Express actually received before rejecting, so this
+            // is diagnosable from server logs alone next time — previously
+            // this branch returned silently with no log line, which is why
+            // this failure looked identical to an AI-service-side rejection.
+            logger.warn("[EXPRESS] no images in request — rejecting", {
+                batchId,
+                contentType: req.headers["content-type"],
+                bodyKeys: Object.keys(req.body || {}),
+            });
             return sendError(res, 422, "At least one produce image is required (field name 'images').");
         }
 

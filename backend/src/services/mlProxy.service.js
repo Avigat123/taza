@@ -40,12 +40,25 @@ const client = axios.create({
 
 const wrapAxiosError = (error, fallbackMessage) => {
     if (error.response) {
-        // FastAPI returns { detail: {...} } for our structured errors
         const detail = error.response.data?.detail;
-        const message =
-            (typeof detail === "object" && detail?.detail) ||
-            (typeof detail === "string" && detail) ||
-            fallbackMessage;
+        let message;
+        if (Array.isArray(detail)) {
+            // FastAPI's default validation-error shape for a rejected request
+            // body (e.g. a required Form(...) field missing/unparsable) is a
+            // LIST of { loc, msg, type } objects, one per bad field — not the
+            // { detail: "..." } shape our own DecisionEngineError uses. The
+            // checks below never matched this shape, so the real reason
+            // (e.g. "quantity_kg: field required") was discarded and every
+            // 422 collapsed to the generic fallback message.
+            message = detail
+                .map((d) => `${(d.loc || []).slice(1).join(".") || "request"}: ${d.msg}`)
+                .join("; ");
+        } else {
+            message =
+                (typeof detail === "object" && detail?.detail) ||
+                (typeof detail === "string" && detail) ||
+                fallbackMessage;
+        }
         return new MLServiceError(message, error.response.status, detail);
     }
     if (error.request) {
@@ -138,12 +151,14 @@ export const analyzeBatch = async ({
         });
         return data;
     } catch (error) {
+        const wrapped = wrapAxiosError(error, "AI service failed to analyze batch");
         logger.error("analyzeBatch failed", {
             batchId,
-            message: error.message,
+            statusCode: wrapped.statusCode,
+            message: wrapped.message,
             durationMs: Date.now() - startedAt,
         });
-        throw wrapAxiosError(error, "AI service failed to analyze batch");
+        throw wrapped;
     }
 };
 

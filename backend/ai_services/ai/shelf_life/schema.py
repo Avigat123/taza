@@ -57,7 +57,27 @@ class StorageType(str, Enum):
     UNKNOWN = "unknown"
 
 
+# The CV model was trained on {apple, banana, orange}. These are the only
+# produce types for which RAG evidence + produce profiles exist. Any other
+# produce type is allowed through (the shelf-life assessment will note
+# PARTIAL/INSUFFICIENT data quality) — but will not be rejected with a 422.
 SUPPORTED_PRODUCE = {"banana", "apple", "orange"}
+
+# Human-readable storage type labels sent by the frontend, normalised to the
+# Python enum's snake_case values.
+_STORAGE_TYPE_ALIASES = {
+    "cold storage": "cold_storage",
+    "cold_storage": "cold_storage",
+    "refrigerated": "cold_storage",       # closest equivalent
+    "refrigerated transport": "refrigerated_transport",
+    "refrigerated_transport": "refrigerated_transport",
+    "controlled atmosphere": "controlled_atmosphere",
+    "controlled_atmosphere": "controlled_atmosphere",
+    "ambient": "ambient",
+    "open storage": "ambient",             # closest equivalent
+    "transport vehicle": "refrigerated_transport",  # closest equivalent
+    "unknown": "unknown",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -98,6 +118,26 @@ class StorageConditions(BaseModel):
     transport_duration_hours: Optional[float] = Field(None, ge=0, le=2000)
     storage_type: Optional[StorageType] = None
 
+    @field_validator("storage_type", mode="before")
+    @classmethod
+    def normalise_storage_type(cls, v):
+        """Accept human-readable labels from the frontend and convert to
+        the StorageType enum value, falling back to UNKNOWN gracefully."""
+        if v is None:
+            return None
+        normalised = _STORAGE_TYPE_ALIASES.get(str(v).strip().lower())
+        if normalised is not None:
+            return normalised
+        # If not in alias table, try passing as-is (handles direct enum values)
+        try:
+            return StorageType(str(v).strip().lower())
+        except ValueError:
+            import logging as _logging
+            _logging.getLogger("taza.shelf_life").warning(
+                f"Unrecognised storage_type '{v}'; treating as 'unknown'."
+            )
+            return StorageType.UNKNOWN
+
 
 class ShelfLifeRequest(BaseModel):
     produce: str
@@ -108,11 +148,12 @@ class ShelfLifeRequest(BaseModel):
     @field_validator("produce")
     @classmethod
     def normalize_produce(cls, v: str) -> str:
+        import logging as _logging
         v_norm = v.strip().lower()
         if v_norm not in SUPPORTED_PRODUCE:
-            raise ValueError(
-                f"Unsupported produce type '{v}'. Supported: {sorted(SUPPORTED_PRODUCE)}. "
-                "Add a profile + knowledge base entry to extend."
+            _logging.getLogger("taza.shelf_life").warning(
+                f"Produce '{v}' not in trained set {sorted(SUPPORTED_PRODUCE)}. "
+                "Assessment will proceed with generic reasoning; data_quality will be PARTIAL."
             )
         return v_norm
 

@@ -1,4 +1,3 @@
-
 import apiClient from "./client";
 
 
@@ -510,14 +509,30 @@ export async function analyzeBatchImages(
   // Send request
   // ----------------------------------------------------------
 
+  // IMPORTANT — Content-Type for this request must be explicitly UNSET,
+  // not omitted and not set to a literal "multipart/form-data" string.
+  //
+  //  - Omitting it (as a previous version of this file did) means axios
+  //    falls back to apiClient's INSTANCE default, "application/json"
+  //    (see api/client.js). Axios's own rule for FormData bodies is: if
+  //    the effective Content-Type says JSON, silently JSON.stringify the
+  //    FormData instead of sending it as multipart. That's what caused
+  //    "images"/"temperature"/etc to show up as plain JSON body keys on
+  //    the server, and req.files to always be empty.
+  //  - Setting it to a bare "multipart/form-data" string (an even earlier
+  //    version) avoids the JSON path, but ships with no boundary
+  //    parameter, which some environments won't fix up for you either.
+  //
+  // Setting it to `undefined` here removes the JSON default for just this
+  // call, so axios detects the FormData body itself and lets the browser
+  // attach the correct "multipart/form-data; boundary=..." header.
   const response =
     await apiClient.post(
       `/batches/${batchId}/analyze`,
       formData,
       {
         headers: {
-          "Content-Type":
-            "multipart/form-data",
+          "Content-Type": undefined,
         },
       }
     );
@@ -674,4 +689,3 @@ export async function getBatchAiInsights(
 export {
   normalizePrediction,
 };
-

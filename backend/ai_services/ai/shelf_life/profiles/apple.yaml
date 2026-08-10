@@ -1,0 +1,48 @@
+# FreshFlow OS - Produce profile: Apple
+# Sources: ai/knowledge/apple/*.md (UC Davis PREC, Prange & Wright 2023 review)
+
+produce: "apple"
+climacteric: true  # climacteric, but harvested preclimacteric so ripening is much slower than banana
+
+optimal_storage:
+  temperature_c:
+    # bimodal by cultivar chilling-sensitivity - profile cannot resolve which
+    # cultivar without more input, so both bands are given
+    chilling_sensitive_cultivars:
+      min: 1.0
+      max: 4.0
+    less_chilling_sensitive_cultivars:
+      min: -1.0
+      max: 1.0
+  humidity_percent:
+    min: 90
+    max: 95
+
+typical_shelf_life_days:
+  refrigerated_air_storage:
+    min: 60     # ~2 months, conservative low end for less-durable cultivars
+    max: 180    # ~6 months, e.g. Golden Delicious reference point
+  controlled_atmosphere_storage:
+    min: 180
+    max: 300    # ~10 months, upper end for CA-suitable cultivars
+  ambient_uncontrolled:
+    min: 5
+    max: 21
+  source_note: "Apple has the longest storage potential of most fresh fruit due to preclimacteric harvest. Range strongly depends on cultivar - this profile cannot determine cultivar from CV class alone."
+
+risk_factors:
+  - factor: "storage_scald"
+    trigger: "hot/dry pre-storage climate history, cultivar susceptibility (e.g. Granny Smith)"
+    effect: "skin browning disorder, not decay - not detectable from storage_temperature_c/humidity_percent inputs alone"
+  - factor: "fungal_decay"
+    trigger: "physical damage/bruising present"
+    effect: "Penicillium (blue mould) or Botrytis (grey mould) infection risk significantly increased at wound sites"
+  - factor: "chilling_injury"
+    trigger: "temperature below cultivar-specific threshold, which this profile cannot pin down precisely"
+    effect: "possible even at near-0C storage in some seasons/cultivars - treat 0-1C as generally safe but not risk-free"
+
+confidence_notes: >
+  This profile intentionally cannot resolve apple cultivar from available
+  inputs. When cultivar is unknown, prefer the wider/more conservative
+  shelf-life range and flag cultivar as missing information if it would
+  materially change the estimate.

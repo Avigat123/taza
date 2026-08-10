@@ -1,0 +1,18 @@
+{
+  "class_to_idx": {
+    "freshapples": 0,
+    "freshbanana": 1,
+    "freshoranges": 2,
+    "rottenapples": 3,
+    "rottenbanana": 4,
+    "rottenoranges": 5
+  },
+  "idx_to_class": {
+    "0": "freshapples",
+    "1": "freshbanana",
+    "2": "freshoranges",
+    "3": "rottenapples",
+    "4": "rottenbanana",
+    "5": "rottenoranges"
+  }
+}

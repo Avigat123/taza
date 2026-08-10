@@ -1,0 +1,54 @@
+# FreshFlow OS - Produce profile: Banana
+# Values are evidence-backed baseline reference points drawn from
+# ai/knowledge/banana/*.md (UC Davis Postharvest Research and Extension
+# Center, TFNet). These are NOT precise predictive formulas - they are
+# reasoning anchors given to the LLM alongside retrieved evidence.
+# Unknown/uncertain fields are left null rather than guessed.
+
+produce: "banana"
+climacteric: true  # continues ripening after harvest; ripening is irreversible once triggered
+
+optimal_storage:
+  temperature_c:
+    min: 13.0
+    max: 14.0
+  # below this, chilling injury risk begins (cultivar/duration dependent)
+  chilling_injury_threshold_c: 12.0
+  humidity_percent:
+    green_or_turning:
+      min: 90
+      max: 95
+    ripe:
+      min: 85
+      max: 90
+
+typical_shelf_life_days:
+  # under proper cold-chain management, green/mature-green fruit
+  cold_chain_managed:
+    min: 28   # ~4 weeks
+    max: 56   # ~8 weeks
+  # at uncontrolled ambient tropical temperature
+  ambient_uncontrolled:
+    min: 2
+    max: 7
+  source_note: "Wide range reflects strong dependence on cultivar and how promptly fruit was precooled after harvest; not a single predictive number."
+
+risk_factors:
+  - factor: "chilling_injury"
+    trigger: "temperature_c below ~12"
+    effect: "peel browning, dull/smoky discoloration, possible failure to ripen; may not be visually obvious immediately"
+  - factor: "low_humidity"
+    trigger: "humidity_percent below ~85"
+    effect: "shriveling, weight loss via peel moisture loss - cumulative and irreversible"
+  - factor: "cold_chain_break"
+    trigger: "any transport/storage segment above optimal range, even briefly"
+    effect: "can trigger irreversible climacteric ripening onset regardless of subsequent cooling"
+  - factor: "physical_damage"
+    trigger: "visible bruising, abrasion (may be visible in CV imagery)"
+    effect: "entry point for decay organisms; accelerates spoilage independent of temp/humidity"
+
+confidence_notes: >
+  Shelf-life ranges are cultivar-dependent and this profile does not
+  distinguish cultivar. Treat estimated ranges as wide by default;
+  narrow only when CV visual condition and storage data both strongly
+  agree on a scenario within the ranges above.

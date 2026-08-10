@@ -1,0 +1,41 @@
+# FreshFlow OS - Produce profile: Orange
+# Sources: ai/knowledge/orange/*.md (UC Davis PREC Orange & Mandarin fact sheets)
+
+produce: "orange"
+climacteric: false  # quality is largely fixed at harvest; storage slows decay, does not "finish" ripening
+
+optimal_storage:
+  temperature_c:
+    min: 3.0
+    max: 8.0
+  # some Florida cultivars tolerate down to 0-1C; Arizona Valencia needs ~9C - real cultivar variation
+  cultivar_variation_note: "Range is wide because chilling tolerance varies significantly by growing region/cultivar."
+  humidity_percent:
+    min: 85
+    max: 95
+
+typical_shelf_life_days:
+  refrigerated:
+    min: 30
+    max: 90   # up to ~3 months depending on cultivar/maturity/region
+  ambient_uncontrolled:
+    min: 7
+    max: 21
+  source_note: "Non-climacteric fruit - shelf life reflects decay/moisture-loss resistance rather than a ripening clock."
+
+risk_factors:
+  - factor: "chilling_injury"
+    trigger: "temperature below ~5C for extended duration (mandarin-type more sensitive than orange)"
+    effect: "peel pitting, brown discoloration, increased decay susceptibility"
+  - factor: "oil_spotting_oleocellosis"
+    trigger: "physical handling of turgid (fully hydrated) fruit"
+    effect: "peel damage from ruptured oil cells - a handling issue, not a storage-condition issue"
+  - factor: "prolonged_storage_duration"
+    trigger: "storage_duration_hours large relative to typical range even under correct temp/humidity"
+    effect: "peel shriveling concentrated at stem end, gradual moisture loss"
+
+confidence_notes: >
+  Because orange is non-climacteric, CV-observed defects more likely
+  indicate decay or physical damage than "over-ripeness" - this should
+  shift reasoning away from ripening-stage explanations that would be
+  appropriate for banana.

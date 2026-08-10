@@ -1,1 +1,1 @@
-"""FreshFlow OS - Layer 3: deterministic decision engine."""
+"""TAZA AI Service - Layer 3: deterministic decision engine."""

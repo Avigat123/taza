@@ -1,4 +1,4 @@
-# FreshFlow OS - AI Layer 2: RAG-Grounded Shelf-Life Assessment
+# TAZA AI Service - AI Layer 2: RAG-Grounded Shelf-Life Assessment
 
 Takes CV batch quality output + storage context, retrieves produce-specific
 agricultural evidence, and produces a structured, uncertainty-aware
@@ -44,7 +44,7 @@ FastAPI JSON response (POST /assess-shelf-life)
 ## Setup
 
 ```bash
-cd freshflow-ai
+cd taza-ai
 pip install -r ai/requirements.txt
 
 cp ai/.env.example ai/.env

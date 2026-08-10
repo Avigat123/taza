@@ -1,5 +1,5 @@
 """
-FreshFlow OS - API routes.
+TAZA AI Service - API routes.
 """
 import logging
 
@@ -9,7 +9,7 @@ from pydantic import ValidationError
 from ai.shelf_life.assessment import ShelfLifeService
 from ai.shelf_life.schema import AssessmentError, ShelfLifeAssessment, ShelfLifeRequest
 
-logger = logging.getLogger("freshflow.api")
+logger = logging.getLogger("taza.api")
 
 router = APIRouter()
 

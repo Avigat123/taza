@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Inference.
+TAZA AI Service - Inference.
 
 Two layers:
   1. `FreshnessPredictor.predict_image` - single image -> class, confidence,

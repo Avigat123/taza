@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 allocation optimizer.
+TAZA AI Service - Layer 3 allocation optimizer.
 
 General-purpose greedy allocator: NOT hard-coded to any specific
 produce/quantity/market combination. Given a shelf-life window and a set

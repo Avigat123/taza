@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Model architecture.
+TAZA AI Service - Model architecture.
 
 Default: MobileNetV3-Large (torchvision, ImageNet-pretrained).
 Rationale for the hackathon MVP:

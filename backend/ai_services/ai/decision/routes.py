@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 API routes.
+TAZA AI Service - Layer 3 API routes.
 
 Mirrors the style of ai/api/routes.py. Kept as its own APIRouter so it can
 be mounted into the existing FastAPI app in ai/main.py with one added
@@ -21,7 +21,7 @@ from ai.decision.schema import (
 from ai.providers import get_provider
 from ai.providers.base import ProviderError
 
-logger = logging.getLogger("freshflow.decision")
+logger = logging.getLogger("taza.decision")
 
 router = APIRouter()
 

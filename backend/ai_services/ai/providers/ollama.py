@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Ollama provider (local, free, no API key required).
+TAZA AI Service - Ollama provider (local, free, no API key required).
 
 Preferred default for hackathon use: no cost, no rate limits, works offline
 once the model is pulled (e.g. `ollama pull qwen2.5:7b` or `ollama pull gemma2:9b`).

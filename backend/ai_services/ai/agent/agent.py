@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Layer 3 AI operations agent.
+TAZA AI Service - Layer 3 AI operations agent.
 
 Orchestration order (per spec, deterministic engine stays independent of
 the LLM):
@@ -27,7 +27,7 @@ from ai.providers.base import AIProvider, ProviderError
 from ai.agent import tools
 from ai.agent.prompts import AGENT_SYSTEM_PROMPT, build_agent_user_prompt
 
-logger = logging.getLogger("freshflow.agent")
+logger = logging.getLogger("taza.agent")
 
 
 def _parse_agent_output(raw_text: str) -> dict:

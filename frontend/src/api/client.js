@@ -1,9 +1,9 @@
 import axios from "axios";
 
-// BACKEND TEAM: set VITE_API_BASE_URL in a .env file at the project root,
-// e.g. VITE_API_BASE_URL=http://localhost:4000/api
-// Every route below should live under this base per the docs/api.md contract.
-const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:4000/api";
+// Set VITE_API_BASE_URL in frontend/.env if your backend runs on a
+// different host/port. Default matches the Express backend's own default
+// port (backend/src/config/env.js: PORT=5000).
+const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 export const apiClient = axios.create({
   baseURL,

@@ -1,4 +1,4 @@
-# FreshFlow OS - AI/ML Service (Stage 1: Computer Vision MVP)
+# TAZA AI Service - AI/ML Service (Stage 1: Computer Vision MVP)
 
 Reduces fresh-produce waste by classifying batch images as fresh/rotten,
 producing a normalized freshness score, and (in later stages) feeding a
@@ -12,7 +12,7 @@ see `src/` structure below.
 ## 1. Folder structure
 
 ```
-freshflow-ai/
+taza-ai/
 ├── configs/
 │   └── train_config.yaml        # single source of truth: data, model, training, scoring
 ├── data/
@@ -42,7 +42,7 @@ freshflow-ai/
 ## 2. Installation
 
 ```bash
-cd freshflow-ai
+cd taza-ai
 python3 -m venv venv
 source venv/bin/activate            # Windows: venv\Scripts\activate
 

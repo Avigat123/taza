@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Shelf-life assessment orchestration.
+TAZA AI Service - Shelf-life assessment orchestration.
 
 This is the service layer that wires everything together:
   input validation -> batch condition reasoning -> produce profile lookup ->
@@ -33,7 +33,7 @@ from ai.shelf_life.schema import (
     ShelfLifeRequest,
 )
 
-logger = logging.getLogger("freshflow.shelf_life")
+logger = logging.getLogger("taza.shelf_life")
 
 
 PROFILES_DIR = Path(__file__).parent / "profiles"

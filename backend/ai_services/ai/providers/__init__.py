@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Provider factory.
+TAZA AI Service - Provider factory.
 
 Reads AI_PROVIDER env var ("ollama" | "gemini" | "glm") and constructs the
 right provider. This is the ONLY place that should branch on provider name -

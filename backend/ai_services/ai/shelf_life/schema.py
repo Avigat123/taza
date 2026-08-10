@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Shelf-life assessment schemas.
+TAZA AI Service - Shelf-life assessment schemas.
 
 All input and LLM output passes through these Pydantic models. The LLM's
 raw JSON is parsed into ShelfLifeAssessment and validated - malformed or

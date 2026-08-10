@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Dataset construction.
+TAZA AI Service - Dataset construction.
 
 Builds a class-indexed image list from data/raw, then produces a
 stratified train/val/test split at the FILE level (not just directory

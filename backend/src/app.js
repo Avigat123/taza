@@ -4,6 +4,7 @@ import cors from "cors";
 // Routes
 import batchRoutes from "./routes/batch.routes.js";
 import qualityInspectionRoutes from "./routes/qualityInspection.routes.js";
+import analysisRoutes from "./routes/analysis.routes.js";
 import predictionRoutes from "./routes/prediction.routes.js";
 import marketRoutes from "./routes/market.routes.js";
 import profitRoutes from "./routes/profit.routes.js";
@@ -33,6 +34,7 @@ app.get("/api/health", (req, res) => {
 // ── API routes ───────────────────────────────────────────────────────────────
 app.use("/api/batches", batchRoutes);
 app.use("/api/batches", qualityInspectionRoutes); // nested: /api/batches/:batchId/inspections
+app.use("/api/batches", analysisRoutes); // nested: /api/batches/:batchId/analyze[/insights]
 app.use("/api/predictions", predictionRoutes);
 app.use("/api/market", marketRoutes);
 app.use("/api/profit", profitRoutes);

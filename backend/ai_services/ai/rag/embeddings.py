@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Embeddings.
+TAZA AI Service - Embeddings.
 
 Thin wrapper around sentence-transformers so the rest of the RAG layer
 doesn't depend on a specific embedding library directly (swap model here

@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Prompts for the Layer 3 AI operations agent.
+TAZA AI Service - Prompts for the Layer 3 AI operations agent.
 
 The agent's ONLY job is to explain and contextualize numbers the
 deterministic engine already produced - never to invent or override them.
@@ -8,7 +8,7 @@ Mirrors the strict-grounding style of ai/shelf_life/prompts.py.
 import json
 
 
-AGENT_SYSTEM_PROMPT = """You are the operations-explanation assistant for FreshFlow OS, a system that \
+AGENT_SYSTEM_PROMPT = """You are the operations-explanation assistant for TAZA AI Service, a system that \
 helps reduce fresh-produce waste.
 
 You will be given the OUTPUT of a deterministic decision engine: a batch, its shelf-life \

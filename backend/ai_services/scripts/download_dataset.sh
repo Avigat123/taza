@@ -1,5 +1,5 @@
 #!/bin/bash
-# FreshFlow OS - Dataset download
+# TAZA AI Service - Dataset download
 # Requires: pip install kaggle, and ~/.kaggle/kaggle.json API token
 # (Kaggle account -> Settings -> Create New Token)
 

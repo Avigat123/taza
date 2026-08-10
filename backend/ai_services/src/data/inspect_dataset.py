@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Dataset inspection.
+TAZA AI Service - Dataset inspection.
 
 Run this FIRST, before writing any training code, on whatever dataset
 you actually downloaded. Hackathon Kaggle datasets vary in folder layout

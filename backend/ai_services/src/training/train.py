@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Training pipeline.
+TAZA AI Service - Training pipeline.
 
 Two-phase transfer learning:
   Phase 1 (warmup): backbone frozen, only the new classification head trains.

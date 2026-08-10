@@ -1,44 +1,114 @@
 import apiClient from "./client";
 
-const USE_MOCK = true; // ML TEAM: flip to false once the inference server (ml/inference/server.py) is reachable
+// Maps a Layer 3 ActionType (SELL/DISCOUNT/REDISTRIBUTE/RESCUE) onto the
+// label vocabulary ActionBadge / common.actions.* already understand, so
+// batch analysis results can reuse that component instead of a new one.
+const ACTION_LABELS = {
+  SELL: "Sell locally",
+  DISCOUNT: "Discount now",
+  REDISTRIBUTE: "Ship to high-demand location",
+  RESCUE: "Redirect to processing",
+};
 
-// Simulates the full pipeline response: vision detection + freshness +
-// shelf-life + spoilage, as described in section 16 of the project doc.
-function buildMockPrediction() {
-  const freshness = Math.floor(60 + Math.random() * 35);
-  const shelfLifeDays = +(1 + Math.random() * 5).toFixed(1);
-  const spoilageRisk = Math.floor(5 + Math.random() * 40);
+const CONFIDENCE_LABEL = (score) => {
+  if (score == null) return "Unknown";
+  if (score >= 0.75) return "High";
+  if (score >= 0.5) return "Medium";
+  return "Low";
+};
+
+const SPOILAGE_RISK_PCT = { LOW: 15, MEDIUM: 50, HIGH: 80, UNKNOWN: 50 };
+
+const BATCH_CONDITION_LABEL = { GOOD: "Good", MIXED: "Mixed", POOR: "Poor" };
+
+// Pulls per-factor risk percentages out of the LLM's `factors` list when it
+// named one matching a known signal; falls back to a share of the overall
+// spoilage risk so the existing SpoilageRisk bar chart always has values.
+function buildRiskFactors(shelfLife, spoilagePct) {
+  const factors = shelfLife.factors || [];
+  const find = (keywords) => {
+    const hit = factors.find((f) =>
+      keywords.some((k) => f.factor?.toLowerCase().includes(k))
+    );
+    if (!hit) return null;
+    if (hit.impact === "negative") return Math.min(100, spoilagePct + 20);
+    if (hit.impact === "positive") return Math.max(0, spoilagePct - 20);
+    return spoilagePct;
+  };
+
   return {
-    produce: "Mango",
-    ripeness: Math.floor(65 + Math.random() * 30),
-    visibleDefects: Math.floor(Math.random() * 4),
-    surfaceQuality: "Good",
-    visualQualityScore: Math.floor(75 + Math.random() * 20),
-    freshness,
-    shelfLifeDays,
-    spoilageRisk,
-    confidence: "Medium",
-    riskFactors: {
-      visualDefectRisk: Math.floor(Math.random() * 20),
-      temperatureStress: Math.floor(Math.random() * 25),
-      ageRisk: Math.floor(Math.random() * 15),
-      storageRisk: Math.floor(Math.random() * 15),
-    },
+    visualDefectRisk: Math.round(100 - shelfLife.condition.freshness_score),
+    temperatureStress: find(["temperature", "heat", "cold"]) ?? spoilagePct,
+    ageRisk: find(["age", "harvest", "days"]) ?? spoilagePct,
+    storageRisk: find(["storage", "humidity", "transport"]) ?? spoilagePct,
   };
 }
 
-export async function inspectImage(file, qualityParams = {}) {
-  if (USE_MOCK) {
-    await new Promise((r) => setTimeout(r, 1400)); // simulate inference latency
-    return buildMockPrediction();
-  }
+/** Adapts a real AnalyzeBatchResult into the shape the existing
+ * DetectionResults / FreshnessScore / ShelfLife / SpoilageRisk display
+ * components already render, so those components need no changes. */
+function mapAnalyzeResultToDisplayShape(result) {
+  const { cv_analysis: cv, shelf_life: shelfLife, decision } = result;
+  const spoilagePct = SPOILAGE_RISK_PCT[shelfLife.assessment.spoilage_risk] ?? 50;
+
+  return {
+    // DetectionResults
+    produce: shelfLife.produce.charAt(0).toUpperCase() + shelfLife.produce.slice(1),
+    ripeness: Math.round(cv.freshness_score),
+    visibleDefects: cv.high_disagreement ? "Mixed batch" : 0,
+    surfaceQuality: BATCH_CONDITION_LABEL[shelfLife.condition.batch_condition] || "Unknown",
+    visualQualityScore: Math.round(cv.freshness_score),
+    // FreshnessScore
+    freshness: Math.round(cv.freshness_score),
+    // ShelfLife
+    shelfLifeDays: shelfLife.assessment.estimated_remaining_shelf_life_days ?? 0,
+    confidence: CONFIDENCE_LABEL(shelfLife.assessment.confidence),
+    // SpoilageRisk
+    spoilageRisk: spoilagePct,
+    riskFactors: buildRiskFactors(shelfLife, spoilagePct),
+    // Decision & action plan (new — rendered by DecisionPlan.jsx)
+    decision: {
+      action: ACTION_LABELS[decision.recommendation.primary_action] || "Monitor",
+      urgency: decision.recommendation.urgency,
+      reasoning: decision.reasoning,
+      impact: decision.impact,
+      allocations: decision.allocations,
+      constraints: decision.constraints,
+    },
+    // Raw payload, kept for the "Get AI Insights" follow-up call
+    _raw: { cv, shelfLife, decision },
+  };
+}
+
+/**
+ * Runs the full CV -> shelf-life -> decision pipeline for a batch.
+ * POST /api/batches/:batchId/analyze (multipart)
+ *
+ * @param {string} batchId
+ * @param {File[]} files - produce images
+ * @param {object} [storage] - { temperatureC, humidityPercent, harvestAgeDays }
+ */
+export async function analyzeBatchImages(batchId, files, storage = {}) {
   const form = new FormData();
-  form.append("image", file);
-  Object.entries(qualityParams).forEach(([k, v]) => form.append(k, v));
-  const { data } = await apiClient.post("/predictions/inspect", form, {
+  files.forEach((f) => form.append("images", f));
+  if (storage.temperatureC !== undefined && storage.temperatureC !== "")
+    form.append("temperatureC", storage.temperatureC);
+  if (storage.humidityPercent !== undefined && storage.humidityPercent !== "")
+    form.append("humidityPercent", storage.humidityPercent);
+  if (storage.harvestAgeDays !== undefined && storage.harvestAgeDays !== "")
+    form.append("harvestAgeDays", storage.harvestAgeDays);
+
+  const { data } = await apiClient.post(`/batches/${batchId}/analyze`, form, {
     headers: { "Content-Type": "multipart/form-data" },
   });
-  return data;
-  // POST /api/predictions/inspect (multipart)
-  // -> proxies to ml/inference/server.py: vision + freshness + shelf-life + spoilage models
+  return mapAnalyzeResultToDisplayShape(data.data);
+}
+
+/**
+ * Requests an LLM explanation layered on top of the batch's most recent
+ * decision. POST /api/batches/:batchId/analyze/insights
+ */
+export async function getBatchAiInsights(batchId) {
+  const { data } = await apiClient.post(`/batches/${batchId}/analyze/insights`, {});
+  return data.data; // { agent_explanation, agent_notes, agent_provider, agent_model, ... }
 }

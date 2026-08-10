@@ -1,5 +1,5 @@
 """
-FreshFlow OS - Image transforms.
+TAZA AI Service - Image transforms.
 
 Train transform includes augmentation; val/test transforms are
 deterministic (resize + normalize only) so evaluation numbers are stable

@@ -1,4 +1,4 @@
-# FreshFlow OS - Training configuration
+# TAZA AI Service - Training configuration
 # Single source of truth for the CV pipeline. Inference and the FastAPI
 # service load this same file so preprocessing never drifts from training.
 

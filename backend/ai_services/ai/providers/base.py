@@ -1,5 +1,5 @@
 """
-FreshFlow OS - AI provider abstraction.
+TAZA AI Service - AI provider abstraction.
 
 Every provider exposes the same interface: generate_json(system_prompt,
 user_prompt) -> raw string expected to be JSON. Parsing/validation happens

@@ -17,6 +17,7 @@ endpoint never calls the LLM-based agent itself, only the deterministic
 """
 import json
 import logging
+import time
 from io import BytesIO
 from typing import List, Optional
 
@@ -119,7 +120,11 @@ def analyze_batch(
             ).model_dump(),
         )
 
+    t0 = time.monotonic()
+    logger.info("[PYTHON] request received (batch_id=%s)", batch_id)
+
     # ---- Layer 1: CV ----
+    logger.info("[PYTHON] CV started")
     pil_images = _load_images(images)
     try:
         batch_prediction = run_cv_on_images(pil_images)
@@ -132,6 +137,7 @@ def analyze_batch(
             ).model_dump(),
         )
     cv_dict = batch_prediction_to_cv_analysis(batch_prediction)
+    logger.info("[PYTHON] CV done (%.2fs elapsed)", time.monotonic() - t0)
 
     # ---- Layer 2: shelf life (RAG + LLM) ----
     try:
@@ -157,17 +163,20 @@ def analyze_batch(
             ).model_dump(),
         )
 
+    logger.info("[PYTHON] shelf-life started (%.2fs elapsed)", time.monotonic() - t0)
     sl_service = get_service()
     sl_result = sl_service.assess(sl_request)
     if isinstance(sl_result, AssessmentError):
         status_code = 422 if sl_result.stage in ("input_validation", "output_validation") else 502
         raise HTTPException(status_code=status_code, detail=sl_result.model_dump())
+    logger.info("[PYTHON] shelf-life done (%.2fs elapsed)", time.monotonic() - t0)
 
     # ---- Layer 3: deterministic decision engine ----
     markets_data = _parse_json_form_field(markets, "markets") or []
     routes_data = _parse_json_form_field(routes, "routes") or []
     local_market_data = _parse_json_form_field(local_market, "local_market")
 
+    logger.info("[PYTHON] decision started (%.2fs elapsed)", time.monotonic() - t0)
     try:
         decision_request = DecisionRequest(
             batch=BatchInfo(batch_id=batch_id, produce=produce, quantity_kg=quantity_kg),
@@ -193,6 +202,7 @@ def analyze_batch(
             ).model_dump(),
         )
 
+    logger.info("[PYTHON] response ready (%.2fs total elapsed)", time.monotonic() - t0)
     return AnalyzeBatchResult(
         batch_id=batch_id,
         cv_analysis=CVAnalysis(**cv_dict),

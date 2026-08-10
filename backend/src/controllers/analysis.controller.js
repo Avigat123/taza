@@ -41,6 +41,7 @@ const riskLevelFromDecision = (shelfLife) => {
 export const analyzeBatchController = async (req, res, next) => {
     try {
         const { batchId } = req.params;
+        logger.info("[EXPRESS] analyze request received", { batchId });
         const batch = await getBatchById(batchId);
         if (!batch) return sendError(res, 404, "Batch not found");
 
@@ -115,7 +116,7 @@ export const analyzeBatchController = async (req, res, next) => {
             spoilageProbability: prediction.spoilageProbability,
         });
 
-        logger.info("Batch analyzed via AI service", {
+        logger.info("[EXPRESS] response sent", {
             batchId,
             visualClass: cv.visual_class,
             primaryAction: decision.recommendation?.primary_action,

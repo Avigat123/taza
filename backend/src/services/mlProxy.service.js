@@ -35,7 +35,7 @@ export class MLServiceError extends Error {
 
 const client = axios.create({
     baseURL: env.aiServiceUrl,
-    timeout: 60_000,
+    timeout: env.aiServiceTimeoutMs,
 });
 
 const wrapAxiosError = (error, fallbackMessage) => {
@@ -124,15 +124,25 @@ export const analyzeBatch = async ({
     if (routes.length) form.append("routes", JSON.stringify(routes.map(toSnakeRoute)));
     if (localMarket) form.append("local_market", JSON.stringify(toSnakeMarket(localMarket)));
 
+    logger.info("[EXPRESS] calling Python /analyze-batch", { batchId });
+    const startedAt = Date.now();
     try {
         const { data } = await client.post("/analyze-batch", form, {
             headers: form.getHeaders(),
             maxContentLength: Infinity,
             maxBodyLength: Infinity,
         });
+        logger.info("[EXPRESS] Python response received", {
+            batchId,
+            durationMs: Date.now() - startedAt,
+        });
         return data;
     } catch (error) {
-        logger.error("analyzeBatch failed", { batchId, message: error.message });
+        logger.error("analyzeBatch failed", {
+            batchId,
+            message: error.message,
+            durationMs: Date.now() - startedAt,
+        });
         throw wrapAxiosError(error, "AI service failed to analyze batch");
     }
 };

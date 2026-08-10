@@ -1,841 +1,843 @@
-# taza
-# Taza — AI-Powered Fresh Produce Intelligence Platform
+Absolutely. For GitHub, I'd make the README **product-focused first, technical second**. Judges/recruiters should understand TAZA in 30 seconds, while developers can go deeper into the architecture and setup.
 
-## 1. Project Overview
+````markdown
+# 🌱 TAZA
 
-**Taza** is an AI-powered fresh-produce intelligence platform designed to reduce food waste across India's fruit and vegetable supply chain.
+### AI-Powered Fresh Produce Intelligence & Waste Reduction Platform
 
-Fresh produce passes through multiple stages — **farm, aggregation, transportation, pack houses, warehouses, mandis, retailers, and consumers**. At every stage, produce quality changes due to ripeness, temperature, humidity, handling, storage duration, transportation time, and demand fluctuations.
+> **Predict. Decide. Reduce Waste.**
 
-Taza combines **Computer Vision, Machine Learning, supply-chain data, and intelligent decision-making** to continuously estimate the condition of produce and determine the best action before it becomes waste.
+TAZA is an AI-powered platform designed to help businesses make smarter decisions about perishable fresh produce.
 
-Instead of simply answering:
+Instead of only identifying whether produce is fresh or rotten, TAZA combines **Computer Vision, RAG-grounded AI, shelf-life estimation, market demand, logistics constraints, and a deterministic decision engine** to answer the more important question:
 
-> **"Is this fruit fresh?"**
-
-Taza answers:
-
-> **"How fresh is it, how long will it remain usable, what is its spoilage risk, and what should we do with it now?"**
+> **"What should we do with this produce before it becomes waste?"**
 
 ---
 
-# 2. Problem Statement
+## 🚀 What TAZA Does
 
-A major challenge in the fresh-produce supply chain is that quality is highly dynamic.
-
-Two batches of the same fruit can have completely different shelf lives depending on:
-
-* Time since harvesting
-* Ripeness
-* Temperature exposure
-* Humidity
-* Storage duration
-* Transportation conditions
-* Physical damage
-* Brix/quality measurements
-* Demand and destination
-
-Traditional quality inspection is often manual, periodic, and difficult to scale.
-
-A simple image classifier also has an important limitation: **a normal RGB camera can primarily observe external characteristics and cannot reliably determine all internal spoilage.**
-
-Therefore, Taza does not claim to "see inside" every fruit. Instead, it performs **multimodal freshness and deterioration-risk estimation** by combining visible characteristics with measurable quality and supply-chain information.
-
----
-
-# 3. Proposed Solution
-
-Taza creates a digital intelligence layer over the fresh-produce supply chain.
-
-The system collects information from multiple sources:
-
-### 📷 Computer Vision
-
-Analyzes produce images for:
-
-* Color
-* Ripeness
-* Bruises
-* Spots
-* Visible mold
-* Cracks
-* Surface defects
-* Shriveling
-* Size and shape
-
-### 🧪 Quality Parameters
-
-Where available, the system can use:
-
-* Brix
-* Firmness
-* pH/acidity
-* Weight loss
-* Other quality measurements
-
-### 🌡️ Storage & Environmental Data
-
-The platform can consider:
-
-* Temperature
-* Humidity
-* Storage duration
-* Time since harvest
-* Temperature excursions
-
-### 🚚 Supply-Chain Data
-
-The system can use:
-
-* Batch information
-* Harvest date
-* Transportation duration
-* Location
-* Storage location
-* Inventory quantity
-* Demand
-* Destination
-
-These inputs are combined by the AI layer to generate a more useful assessment of produce condition.
-
----
-
-# 4. Core AI Pipeline
+TAZA transforms a simple produce inspection into an actionable workflow:
 
 ```text
-Produce Image
-      +
-Quality Parameters
-      +
-Storage Conditions
-      +
-Harvest/Batch Information
-      +
-Supply-Chain Data
-            ↓
-      AI Intelligence Layer
-            ↓
- ┌──────────┼───────────┐
- ↓          ↓           ↓
-Freshness  Shelf-Life  Spoilage
- Score     Prediction   Risk
- └──────────┼───────────┘
-            ↓
-      Decision Engine
-            ↓
- ┌──────────┼──────────────┐
- ↓          ↓              ↓
-Sell       Move         Redirect
-Now        Batch        Produce
-            ↓
-       Waste Reduction
-```
+Produce Images
+      ↓
+Computer Vision
+      ↓
+Freshness & Batch Condition
+      ↓
+Shelf-Life + Spoilage Risk
+      ↓
+Market Demand + Logistics
+      ↓
+Decision Engine
+      ↓
+SELL / DISCOUNT / REDISTRIBUTE / RESCUE
+      ↓
+Reduced Expected Waste
+````
+
+The platform is designed around one primary objective:
+
+### ♻️ Reduce avoidable food waste while recovering as much value as possible.
 
 ---
 
-# 5. Main Features
+# ✨ Key Features
 
-## Feature 1 — AI Produce Inspection
+## 🍎 1. Computer Vision Freshness Detection
 
-A user can upload or capture an image of a fruit or vegetable.
+TAZA uses a **MobileNetV3-based image classification model** to classify produce into:
 
-The computer-vision model identifies:
+* Fresh Apple
+* Rotten Apple
+* Fresh Banana
+* Rotten Banana
+* Fresh Orange
+* Rotten Orange
 
-* Produce type
-* Ripeness stage
-* Visible defects
-* Bruising
-* Mold/rot indicators
-* Surface quality
+The system supports multiple images for a batch rather than relying on a single photograph.
 
-Example:
+### Current held-out test performance
 
-```text
-Produce: Mango
+| Metric          |     Result |
+| --------------- | ---------: |
+| Accuracy        | **99.81%** |
+| Macro Precision | **99.79%** |
+| Macro Recall    | **99.85%** |
+| Macro F1        | **99.82%** |
 
-Ripeness: 82%
-Visible Defects: 2
-Surface Quality: Good
-Visual Quality Score: 86/100
-```
+> These metrics are measured on the held-out test dataset and should not be interpreted as real-world accuracy.
 
----
-
-# 6. Feature 2 — Multimodal Freshness Score
-
-Instead of relying only on the image, Taza combines multiple signals.
-
-Example:
-
-```text
-Image Quality          86
-Brix                   14.2°
-Temperature             8.4°C
-Humidity                82%
-Days Since Harvest       5
-Storage Stress          Medium
-```
-
-The model generates:
-
-```text
-Freshness Score:       81/100
-Spoilage Risk:         18%
-```
-
-The score represents an **estimated quality state**, not a laboratory-certified food-safety result.
+The model also specifically tracks **false negatives**, where rotten produce is incorrectly classified as fresh, because this is the more operationally dangerous error.
 
 ---
 
-# 7. Feature 3 — Remaining Shelf-Life Prediction
+# 📦 2. Batch-Level Intelligence
 
-One of Taza's most important features is predicting the **estimated remaining commercially useful shelf life**.
-
-Instead of:
-
-> "This mango is fresh."
-
-the system provides:
-
-> **Estimated remaining shelf life: 3.2 days**
-
-Example:
-
-```text
-Batch: MNG-102
-
-Freshness Score       81/100
-Estimated Shelf Life  3.2 days
-Spoilage Risk         18%
-Confidence             Medium
-```
-
-This enables businesses to prioritize inventory before it deteriorates.
-
----
-
-# 8. Feature 4 — Spoilage Risk Prediction
-
-Taza estimates the probability of deterioration based on multiple factors.
+TAZA can analyze multiple images from the same produce batch.
 
 For example:
 
 ```text
-Visual Defect Risk       10%
-Temperature Stress       21%
-Age Risk                  9%
-Storage Risk              8%
-
-Overall Estimated Risk   18%
+Fresh Banana     80%
+Rotten Banana    20%
 ```
 
-The system can classify batches as:
+Instead of blindly calling the entire batch "fresh", TAZA can identify it as:
 
-🟢 **Low Risk**
+```text
+MIXED
+```
 
-🟡 **Medium Risk**
-
-🔴 **High Risk**
-
-This helps warehouse and retail operators identify inventory that requires immediate attention.
+This allows downstream decisions to consider the actual condition of the batch.
 
 ---
 
-# 9. Feature 5 — Intelligent Decision Engine
+# 🧠 3. AI-Assisted Shelf-Life Estimation
 
-This is what makes Taza more than an ML project.
+Visual appearance alone cannot determine remaining shelf life.
 
-The AI doesn't stop at predicting quality.
+TAZA combines visual information with contextual factors such as:
 
-It determines:
+* Temperature
+* Humidity
+* Storage duration
+* Storage type
+* Transport information
+* Pre-cooling status
+* Cultivar information
+* Produce-specific post-harvest knowledge
 
-> **What should happen to this produce?**
+The system produces:
+
+```text
+Estimated remaining shelf life
+Estimated range
+Spoilage risk
+Urgency
+Confidence
+Risk factors
+Missing information
+Supporting evidence
+```
+
+Example:
+
+```text
+Estimated remaining shelf life: 3.5 days
+Estimated range: 2–5 days
+Spoilage risk: HIGH
+Urgency: HIGH
+Confidence: 65%
+```
+
+### Important
+
+TAZA currently treats shelf-life as an **evidence-grounded AI estimate**, not a scientifically calibrated prediction.
+
+A future version can use historical spoilage outcomes to train and calibrate a dedicated shelf-life prediction model.
+
+---
+
+# 🔎 4. RAG-Based Agricultural Knowledge
+
+TAZA uses **Retrieval-Augmented Generation (RAG)** to ground AI reasoning in produce-specific post-harvest knowledge.
+
+```text
+Batch Information
+      ↓
+Semantic Query
+      ↓
+Sentence Transformer
+      ↓
+FAISS Vector Search
+      ↓
+Relevant Agricultural Knowledge
+      ↓
+Gemini / Ollama / GLM
+      ↓
+Structured Assessment
+```
+
+Current embedding model:
+
+```text
+sentence-transformers/all-MiniLM-L6-v2
+```
+
+Vector database:
+
+```text
+FAISS
+```
+
+This allows the system to retrieve relevant information instead of relying entirely on an LLM's internal knowledge.
+
+---
+
+# 🤖 5. AI Provider Flexibility
+
+TAZA uses a provider abstraction so the AI layer is not permanently tied to a single LLM provider.
+
+Supported providers include:
+
+* Google Gemini
+* Ollama
+* GLM-compatible provider
+
+This allows the system to switch between:
+
+```text
+Cloud AI
+   or
+Local AI
+```
+
+depending on cost, latency, privacy and deployment requirements.
+
+---
+
+# 🎯 6. Deterministic Decision Engine
+
+This is where TAZA goes beyond image classification.
 
 The decision engine considers:
 
+* Batch quantity
 * Remaining shelf life
-* Quantity
-* Current location
-* Nearby demand
-* Transportation time
-* Destination
-* Expected spoilage
-* Potential value
-
-### Example
-
-A mango batch has:
-
-```text
-Shelf Life: 1.8 days
-Quantity: 850 kg
-Demand nearby: High
-Distance to destination: 40 km
-```
-
-Taza recommends:
-
-> **PRIORITIZE LOCAL SALE**
-
-Another batch:
-
-```text
-Shelf Life: 6 days
-Demand in another city: High
-Transport time: 5 hours
-```
-
-Taza can recommend:
-
-> **SHIP TO HIGH-DEMAND LOCATION**
-
-A batch with extremely short remaining shelf life could be recommended for:
-
-> **Processing / Alternative Buyer / Donation / Other recovery channel**
-
-The exact destination would depend on the business rules and available partners.
-
----
-
-# 10. Feature 6 — Waste Reduction Engine
-
-Every recommendation is connected to one objective:
-
-## Reduce avoidable produce waste.
-
-The dashboard can estimate:
-
-```text
-Total Inventory       12,450 kg
-
-At-Risk Inventory      1,240 kg
-
-Priority Batches            8
-
-Estimated Waste Avoided      84 kg
-```
-
-The platform can compare:
-
-**Expected waste without intervention**
-
-vs.
-
-**Expected waste after AI recommendations**
-
-This creates a measurable impact metric for the hackathon.
-
----
-
-# 11. Feature 7 — Batch Intelligence
-
-Instead of tracking individual fruits only, Taza can operate at the **batch level**, which is more practical for warehouses and supply-chain operations.
-
-Example:
-
-```text
-Batch ID: MNG-102
-
-Produce: Mango
-Origin: Farm A
-Harvest Date: 04 Aug
-Quantity: 850 kg
-
-Freshness: 81/100
-Shelf Life: 3.2 days
-Spoilage Risk: 18%
-
-Recommended Action:
-→ Sell locally
-→ Prioritize within 48 hours
-```
-
----
-
-# 12. Feature 8 — Digital Batch Passport
-
-Every batch can receive a unique QR code.
-
-Scanning the QR code opens its digital history:
-
-```text
-FARM
-  ↓
-HARVEST
-  ↓
-PACK HOUSE
-  ↓
-TRANSPORT
-  ↓
-WAREHOUSE
-  ↓
-RETAILER
-```
-
-The passport can contain:
-
-* Batch ID
-* Produce type
-* Harvest date
-* Quality inspection
-* Freshness score
-* Storage history
-* Temperature history
-* Predicted shelf life
-* Current risk
-* Recommendations
-
-This creates a traceable digital identity for the produce batch.
-
----
-
-# 13. Feature 9 — Real-Time Cold-Chain Monitoring
-
-Sensors are **optional for the core MVP**.
-
-For the advanced version, an ESP32-based device can collect:
-
-* Temperature
-* Humidity
-
-The data can be transmitted through MQTT.
-
-```text
-ESP32
-   ↓
-Temperature / Humidity
-   ↓
-MQTT
-   ↓
-Backend
-   ↓
-Database
-   ↓
-AI Model
-   ↓
-Updated Shelf-Life Prediction
-```
-
-For example:
-
-```text
-Normal Storage
-      ↓
-Temperature increases
-      ↓
-AI detects storage stress
-      ↓
-Spoilage risk increases
-      ↓
-Shelf life prediction changes
-      ↓
-Alert generated
-```
-
-This demonstrates how the platform can respond to changing cold-chain conditions.
-
----
-
-# 14. Feature 10 — AI Operations Agent
-
-Taza can include an AI agent that acts as an operations assistant.
-
-A warehouse manager could ask:
-
-> "Which batches should we sell first?"
-
-The agent checks:
-
-* Inventory
-* Freshness
-* Shelf life
 * Spoilage risk
-* Demand
-* Location
+* Market demand
+* Price
+* Transport time
+* Transport cost
+* Destination feasibility
+* Available market capacity
 
-and responds:
+It can recommend:
 
-> **Mango Batch MNG-102 should be prioritized because it has 1.8 days of estimated shelf life remaining and high nearby demand.**
+### 🟢 SELL
 
-The agent can also answer:
+Normal sale is feasible.
 
-* Which inventory is at highest risk?
-* Which batches should be moved?
-* Which produce should be discounted?
-* Which batches can safely travel farther?
-* How much produce is at risk?
-* What actions could reduce expected waste?
+### 🟡 DISCOUNT
 
-The LLM acts as an **interface and reasoning layer**, while the actual freshness and shelf-life predictions come from dedicated ML models.
+The produce is still usable but time is becoming limited.
 
----
+### 🔄 REDISTRIBUTE
 
-# 15. Handling the "Inside the Fruit" Problem
+Move inventory to another feasible market where it can be consumed/sold before deterioration.
 
-A critical limitation is that a normal RGB camera cannot reliably detect every internal defect.
+### 🆘 RESCUE
 
-Taza handles this honestly.
-
-Instead of claiming:
-
-> ❌ "Our camera can see whether the fruit is rotten inside."
-
-Taza says:
-
-> ✅ **"Our system estimates deterioration and hidden-spoilage risk using multiple observable signals."**
-
-Future versions can integrate:
-
-* NIR spectroscopy
-* Hyperspectral imaging
-* VOC/gas sensing
-* Laboratory measurements
-
-These can provide additional information about internal quality.
-
-For the hackathon MVP, these technologies are **not required**.
+Use an alternative rescue channel when normal commercial routes are no longer appropriate.
 
 ---
 
-# 16. AI/ML Architecture
+# 🔐 Why Is the Decision Engine Deterministic?
 
-Taza can use multiple specialized models rather than one model doing everything.
+TAZA deliberately does **not** allow an LLM to freely decide quantities or routes.
 
-### Computer Vision Model
-
-**Input:**
-
-Produce image
-
-**Output:**
-
-* Produce type
-* Ripeness
-* Visible defects
-
-Possible technology:
-
-**YOLO + PyTorch + OpenCV**
-
----
-
-### Freshness Model
-
-**Inputs:**
+Instead:
 
 ```text
-Visual features
-+
-Brix
-+
-Temperature
-+
-Humidity
-+
-Age
-+
-Storage information
+LLM
+ ↓
+Reasoning / Explanation
+
+Python Decision Engine
+ ↓
+Numerical Decisions
 ```
 
-**Output:**
+The deterministic engine remains the source of truth for:
 
-```text
-Freshness Score
-```
+* Allocation
+* Feasibility
+* Quantity
+* Transport constraints
+* Expected waste
+* Recovered value
 
-Possible models:
-
-**XGBoost / LightGBM / Neural Network**
+This prevents an LLM from hallucinating operational numbers.
 
 ---
 
-### Shelf-Life Model
+# 🤖 Optional AI Agent
 
-**Inputs:**
+TAZA provides two decision paths:
 
 ```text
-Freshness
-+
-Temperature history
-+
-Humidity
-+
-Age
-+
-Quality parameters
+POST /decision
 ```
 
-**Output:**
+Deterministic decision engine.
+
+and:
 
 ```text
-Remaining Shelf Life
+POST /decision/agent
+```
+
+AI-assisted decision explanation.
+
+The agent can inspect the calculated results and provide:
+
+* Explanation
+* Risks
+* Alternatives
+* Operational insights
+* Missing information
+
+However, the agent cannot override the deterministic decision engine.
+
+---
+
+# 📊 Example
+
+Consider a batch:
+
+```text
+Produce: Banana
+Quantity: 500 kg
+```
+
+Market information:
+
+```text
+Chandigarh
+Demand: 100 kg
+Price: ₹45/kg
+
+Ludhiana
+Demand: 350 kg
+Price: ₹44/kg
+
+Delhi
+Demand: 1000 kg
+Price: ₹42/kg
+```
+
+Routes:
+
+```text
+Chandigarh → 2 hours
+Ludhiana   → 3 hours
+Delhi      → 6 hours
+```
+
+The decision engine may produce an allocation such as:
+
+```text
+100 kg → Chandigarh
+350 kg → Ludhiana
+50 kg  → Delhi
+```
+
+Result:
+
+```text
+Allocated: 500 kg
+Expected waste: 0 kg
+Recovered value: ₹20,300
+```
+
+> This is a demonstration scenario using supplied market and route data, not real-time market data.
+
+---
+
+# 🏗️ Architecture
+
+```text
+                        ┌──────────────┐
+                        │    React     │
+                        │  Frontend    │
+                        └──────┬───────┘
+                               │
+                               ▼
+                        ┌──────────────┐
+                        │   Express    │
+                        │   Backend    │
+                        └──────┬───────┘
+                               │
+                ┌──────────────┴──────────────┐
+                │                             │
+                ▼                             ▼
+        ┌──────────────┐              ┌──────────────┐
+        │   MongoDB    │              │   FastAPI    │
+        │   Database   │              │ AI Service   │
+        └──────────────┘              └──────┬───────┘
+                                             │
+                           ┌─────────────────┼─────────────────┐
+                           │                 │                 │
+                           ▼                 ▼                 ▼
+                    ┌────────────┐    ┌────────────┐    ┌────────────┐
+                    │ Computer   │    │ RAG + LLM  │    │ Decision   │
+                    │ Vision     │    │ Shelf Life │    │ Engine     │
+                    └────────────┘    └────────────┘    └────────────┘
+                                                               │
+                                                               ▼
+                                                        ┌────────────┐
+                                                        │ AI Agent   │
+                                                        └────────────┘
 ```
 
 ---
 
-### Spoilage Model
-
-**Output:**
-
-```text
-Spoilage Risk Probability
-```
-
----
-
-# 17. Technology Stack
+# 🧩 Technology Stack
 
 ## Frontend
 
 * React
-* Vite
-* Tailwind CSS
-* Recharts
-* Axios
-* Framer Motion
+* JavaScript
+* HTML/CSS
 
-## Backend
+## Application Backend
 
 * Node.js
 * Express.js
-* REST APIs
-* WebSockets if real-time updates are required
+* MongoDB
 
-## Database
-
-* PostgreSQL
-* Prisma or Sequelize
-
-## AI/ML
+## AI Backend
 
 * Python
+* FastAPI
+
+## Computer Vision
+
+* MobileNetV3
 * PyTorch
-* YOLO
-* OpenCV
-* Scikit-learn
-* XGBoost / LightGBM
-* Pandas
-* NumPy
+* Pillow / image processing stack
 
-## AI Agent
+## RAG
 
-* LangGraph
-* LLM API
-* Tool-based architecture
+* Sentence Transformers
+* `all-MiniLM-L6-v2`
+* FAISS
 
-## IoT — Optional
+## Generative AI
 
-* ESP32
-* Temperature/Humidity sensor
-* MQTT
-
-## Infrastructure
-
-* Docker
-* Redis
-* Git/GitHub
-* CI/CD
+* Google Gemini
+* Ollama
+* GLM-compatible provider
 
 ---
 
-# 18. System Architecture
+# 🔄 End-to-End Workflow
 
 ```text
-                    ┌─────────────────────┐
-                    │       USERS         │
-                    │ Warehouse / Retail  │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │ React + Vite        │
-                    │ Dashboard            │
-                    └──────────┬──────────┘
-                               │
-                               ▼
-                    ┌─────────────────────┐
-                    │ Node.js + Express   │
-                    │ Backend API          │
-                    └──────────┬──────────┘
-                               │
-          ┌────────────────────┼───────────────────┐
-          │                    │                   │
-          ▼                    ▼                   ▼
-    PostgreSQL              Redis            Python ML
-                                                Service
-                                                  │
-                              ┌───────────────────┼──────────────┐
-                              │                   │              │
-                              ▼                   ▼              ▼
-                         Computer Vision    Freshness ML    Shelf-Life ML
-                              │                   │              │
-                              └───────────────────┼──────────────┘
-                                                  ▼
-                                          Spoilage Prediction
-                                                  │
-                                                  ▼
-                                        Decision Engine
-                                                  │
-                              ┌───────────────────┼──────────────┐
-                              ▼                   ▼              ▼
-                           Sell                Move          Redirect
-                                                  │
-                                                  ▼
-                                          Waste Reduction
+1. Create Batch
+       ↓
+2. Upload Produce Images
+       ↓
+3. Run Inspection
+       ↓
+4. Computer Vision
+       ↓
+5. Freshness + Batch Condition
+       ↓
+6. Shelf-Life Assessment
+       ↓
+7. Enter Market Demand
+       ↓
+8. Enter Prices & Routes
+       ↓
+9. Decision Engine
+       ↓
+10. Recommended Action
+       ↓
+11. Distribution Plan
+       ↓
+12. Optional AI Insights
 ```
 
 ---
 
-# 19. Example End-to-End Scenario
+# 🌐 AI Service API
 
-A warehouse receives **1,000 kg of mangoes**.
+The Python AI service exposes endpoints including:
 
-### Step 1 — Inspection
+```http
+GET /
+GET /health
 
-The operator uploads an image.
+POST /analyze-batch
+POST /assess-shelf-life
 
-Computer vision detects:
-
-* High ripeness
-* Minor bruising
-* No significant visible mold
-
-### Step 2 — Data Collection
-
-The system receives:
-
-```text
-Brix: 14.2°
-Temperature: 8.5°C
-Humidity: 82%
-Age: 5 days
-Quantity: 1000 kg
+POST /decision
+POST /decision/agent
 ```
 
-### Step 3 — AI Prediction
+### `/analyze-batch`
+
+Main orchestration endpoint.
 
 ```text
-Freshness:        78/100
-Spoilage Risk:    31%
-Shelf Life:       1.8 days
+Images
+ ↓
+CV
+ ↓
+Shelf-Life
+ ↓
+Decision
+ ↓
+Combined Result
 ```
 
-### Step 4 — Supply-Chain Analysis
+### `/assess-shelf-life`
 
-Taza checks:
+Runs the AI-assisted shelf-life assessment.
+
+### `/decision`
+
+Runs the deterministic decision engine.
+
+### `/decision/agent`
+
+Runs the decision workflow with optional AI-generated insights.
+
+---
+
+# 📁 Project Structure
 
 ```text
-Nearby demand: High
-Nearby retailer: 40 km
-Transport time: 2 hours
+TAZA/
+│
+├── frontend/
+│   ├── src/
+│   └── ...
+│
+├── backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   └── ...
+│
+├── ai_services/
+│   ├── ai/
+│   │   ├── api/
+│   │   ├── agent/
+│   │   ├── decision/
+│   │   ├── providers/
+│   │   ├── shelf_life/
+│   │   ├── vision/
+│   │   ├── rag/
+│   │   └── tests/
+│   │
+│   └── ...
+│
+└── README.md
 ```
 
-### Step 5 — Recommendation
+> Exact directory names may vary depending on the deployed version of the project.
 
-```text
-🚨 HIGH PRIORITY
+---
 
-Sell this batch locally.
+# ⚙️ Local Development
 
-Recommended action:
-Move 700 kg to nearby retailers.
-Process/redirect remaining quantity if
-it cannot be sold within the predicted
-quality window.
-```
+## 1. Clone
 
-### Step 6 — Impact
-
-The dashboard records:
-
-```text
-Potential waste
-        ↓
-AI intervention
-        ↓
-Expected waste reduction
-        ↓
-₹ value preserved
-        ↓
-kg of produce saved
+```bash
+git clone <repository-url>
+cd TAZA
 ```
 
 ---
 
-# 20. Why Taza Is Different
+## 2. AI Service
 
-A typical project might do:
+Create a virtual environment:
 
-```text
-Image → Fresh / Rotten
+```bash
+python -m venv .venv
 ```
 
-Taza does:
+Activate it.
+
+### Windows
+
+```bash
+.venv\Scripts\activate
+```
+
+### Linux/macOS
+
+```bash
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```bash
+pip install -r ai/requirements.txt
+```
+
+Configure:
 
 ```text
-Image
- +
-Quality
- +
+AI_PROVIDER=gemini
+GEMINI_API_KEY=your_api_key
+GEMINI_MODEL=gemini-2.5-flash
+```
+
+Build the RAG index if required:
+
+```bash
+python -m ai.rag.build_index
+```
+
+Start FastAPI:
+
+```bash
+uvicorn ai.main:app --reload --port 8000
+```
+
+API documentation:
+
+```text
+http://localhost:8000/docs
+```
+
+---
+
+# 3. Express Backend
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Configure your environment:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+AI_SERVICE_URL=http://localhost:8000
+```
+
+Start:
+
+```bash
+npm run dev
+```
+
+---
+
+# 4. Frontend
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start:
+
+```bash
+npm run dev
+```
+
+---
+
+# 🧪 Testing
+
+AI service tests:
+
+```bash
+pytest ai/tests/ -v
+```
+
+Frontend build:
+
+```bash
+npm run build
+```
+
+The decision engine is designed to be testable without requiring a live LLM.
+
+---
+
+# 🔬 Current Limitations
+
+TAZA is currently an MVP/prototype and has several areas that require further validation.
+
+### Computer Vision
+
+The reported classification performance comes from a held-out dataset.
+
+Real-world performance across:
+
+* lighting conditions
+* camera types
+* backgrounds
+* cultivars
+* packaging
+* different markets
+
+requires additional validation.
+
+### Shelf-Life
+
+The current shelf-life layer is **AI-assisted and evidence-grounded**, but it is not yet calibrated against a large real-world spoilage dataset.
+
+### Market Data
+
+The current decision engine operates on supplied market information.
+
+Real deployments should integrate:
+
+* live demand
+* pricing
+* inventory
+* transport
+* market availability
+
+APIs.
+
+### Produce Coverage
+
+The current CV model focuses on:
+
+```text
+Apple
+Banana
+Orange
+```
+
+Additional produce requires additional data/model validation and corresponding post-harvest knowledge.
+
+---
+
+# 🔮 Future Roadmap
+
+## Phase 1 — Current
+
+* [x] Freshness classification
+* [x] Batch-level analysis
+* [x] RAG knowledge retrieval
+* [x] AI-assisted shelf-life assessment
+* [x] Deterministic decision engine
+* [x] Market demand integration
+* [x] Distribution recommendations
+* [x] Optional AI agent
+
+## Phase 2
+
+* [ ] Real-time market APIs
+* [ ] Dynamic pricing
+* [ ] Route optimization
+* [ ] More produce categories
+* [ ] Human review workflow
+* [ ] Production monitoring
+
+## Phase 3
+
+Collect historical operational data:
+
+```text
+Batch
++
+Environment
++
+CV
++
 Storage
- +
-Supply Chain
-        ↓
-AI
-        ↓
-Freshness
-        ↓
-Shelf Life
-        ↓
-Spoilage Risk
-        ↓
-Business Decision
-        ↓
-Waste Reduction
++
+Decision
++
+Actual outcome
 ```
 
-The product therefore connects **AI prediction with an actual operational decision**.
+Then train and calibrate dedicated predictive models for:
+
+* Shelf life
+* Spoilage probability
+* Demand
+* Pricing
+* Waste prediction
 
 ---
 
-# 21. Hackathon MVP
+# 🌍 Long-Term Vision
 
-For the first working version, don't build everything.
+TAZA can evolve from a produce inspection system into a complete **perishable inventory intelligence platform**.
 
-### Must Have
+```text
+                    TAZA
+                      │
+       ┌──────────────┼──────────────┐
+       │              │              │
+       ▼              ▼              ▼
+   QUALITY        INVENTORY       MARKET
+   INTELLIGENCE   INTELLIGENCE    INTELLIGENCE
+       │              │              │
+       └──────────────┼──────────────┘
+                      ▼
+                DECISION ENGINE
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+        SELL       REDISTRIBUTE  RESCUE
+                      │
+                      ▼
+                LESS WASTE
+```
 
-1. **Produce image upload**
-2. **Computer vision defect/ripeness detection**
-3. **Freshness score**
-4. **Shelf-life prediction**
-5. **Spoilage-risk prediction**
-6. **Batch management**
-7. **AI recommendation**
-8. **Waste-reduction dashboard**
+The long-term goal is not simply to detect spoiled produce.
 
-### Nice to Have
-
-9. QR batch passport
-10. AI operations agent
-11. Demand-based recommendations
-12. Route optimization
-
-### Advanced
-
-13. ESP32 sensors
-14. Real-time cold-chain monitoring
-15. NIR/hyperspectral integration
+It is to **intervene early enough to prevent avoidable waste.**
 
 ---
 
-# 22. Final Value Proposition
+# 🏆 Why TAZA?
 
-Taza transforms fresh-produce management from a **reactive inspection process** into a **predictive decision system**.
+Most freshness systems stop at:
 
-Instead of discovering that produce has already spoiled, businesses can identify risky batches earlier, estimate how much usable time remains, prioritize inventory intelligently, and redirect produce before it becomes waste.
+> **"This fruit is fresh/rotten."**
 
-## Taza's core loop:
+TAZA asks:
 
-**SEE → PREDICT → PRIORITIZE → ACT → SAVE**
+> **"Given the condition, remaining shelf life, market demand and logistics constraints, what should we do next?"**
 
-> **Taza — Predict freshness. Prevent waste. Save value.**
+That turns computer vision into an **operational decision-making system**.
+
+---
+
+# 👥 Team
+
+Built for:
+
+**[Hackathon / Competition Name]**
+
+Team:
+
+* [Member 1]
+* [Member 2]
+* [Member 3]
+* [Member 4]
+
+---
+
+# 📜 Disclaimer
+
+TAZA is a prototype designed for decision support and waste-reduction workflows.
+
+AI-generated shelf-life estimates should not be treated as a substitute for food-safety regulations, professional inspection, or laboratory testing.
+
+---
+
+# 🌱 TAZA
+
+### Predict. Decide. Reduce Waste.
+
+**From produce images to actionable decisions — before food becomes waste.**
+
+```
+
+### One thing I'd do before putting this on GitHub
+
+**Don't put your Gemini API key in the repository.** The key you pasted earlier should be considered exposed—rotate/revoke it in Google AI Studio and create a new one, then keep it only in `.env` and make sure `.env` is in `.gitignore`.
+
+Also replace the placeholder `<repository-url>` and team details before publishing.
+```

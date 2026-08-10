@@ -1,0 +1,57 @@
+# FreshFlow OS - Training configuration
+# Single source of truth for the CV pipeline. Inference and the FastAPI
+# service load this same file so preprocessing never drifts from training.
+
+data:
+  raw_root: "data/raw"
+  processed_root: "data/processed"
+  image_size: 224          # matches MobileNetV2/EfficientNet-B0 expected input
+  val_split: 0.15
+  test_split: 0.15
+  seed: 42
+  batch_size: 32
+  num_workers: 2
+
+model:
+  architecture: "mobilenet_v3_large"   # lightweight, strong accuracy/latency tradeoff
+  pretrained: true
+  freeze_backbone_epochs: 3   # warmup: train head only, then unfreeze
+  dropout: 0.3
+
+training:
+  epochs: 25
+  lr_head: 1.0e-3
+  lr_finetune: 1.0e-4
+  weight_decay: 1.0e-4
+  label_smoothing: 0.05
+  early_stopping_patience: 5
+  early_stopping_metric: "val_f1_macro"
+  lr_scheduler: "reduce_on_plateau"
+  lr_patience: 2
+  lr_factor: 0.5
+  use_class_weights: true
+  use_weighted_sampler: false   # alternative to class weights; keep one, not both
+
+augmentation:
+  horizontal_flip: true
+  rotation_degrees: 20
+  color_jitter:
+    brightness: 0.2
+    contrast: 0.2
+    saturation: 0.2
+    hue: 0.02
+  random_resized_crop_scale: [0.8, 1.0]
+
+output:
+  saved_models_dir: "saved_models"
+  best_model_name: "freshness_classifier_best.pt"
+  class_mapping_name: "class_mapping.json"
+  metrics_report_name: "evaluation_report.json"
+  confusion_matrix_name: "confusion_matrix.png"
+
+freshness_score:
+  # Maps class semantics -> normalized 0-100 freshness score.
+  # "fresh" classes anchor near 100, "rotten/stale" near 0.
+  # Actual per-prediction score also factors in model confidence (see inference).
+  fresh_anchor: 90
+  rotten_anchor: 10

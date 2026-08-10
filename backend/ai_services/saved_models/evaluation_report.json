@@ -1,0 +1,126 @@
+{
+  "test_set_size": 2698,
+  "accuracy": 0.9981467753891772,
+  "precision_macro": 0.9979017046487036,
+  "recall_macro": 0.9984771727297624,
+  "f1_macro": 0.9981849348045785,
+  "precision_weighted": 0.9981561096217251,
+  "recall_weighted": 0.9981467753891772,
+  "f1_weighted": 0.9981466420895225,
+  "mean_confidence": 0.9412956833839417,
+  "per_class_report": {
+    "freshapples": {
+      "precision": 0.992462311557789,
+      "recall": 1.0,
+      "f1-score": 0.9962168978562421,
+      "support": 395.0
+    },
+    "freshbanana": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 381.0
+    },
+    "freshoranges": {
+      "precision": 0.9974293059125964,
+      "recall": 1.0,
+      "f1-score": 0.9987129987129987,
+      "support": 388.0
+    },
+    "rottenapples": {
+      "precision": 1.0,
+      "recall": 0.9933444259567388,
+      "f1-score": 0.996661101836394,
+      "support": 601.0
+    },
+    "rottenbanana": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 530.0
+    },
+    "rottenoranges": {
+      "precision": 0.9975186104218362,
+      "recall": 0.9975186104218362,
+      "f1-score": 0.9975186104218362,
+      "support": 403.0
+    },
+    "accuracy": 0.9981467753891772,
+    "macro avg": {
+      "precision": 0.9979017046487036,
+      "recall": 0.9984771727297624,
+      "f1-score": 0.9981849348045785,
+      "support": 2698.0
+    },
+    "weighted avg": {
+      "precision": 0.9981561096217251,
+      "recall": 0.9981467753891772,
+      "f1-score": 0.9981466420895225,
+      "support": 2698.0
+    }
+  },
+  "confusion_matrix": [
+    [
+      395,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      381,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      388,
+      0,
+      0,
+      0
+    ],
+    [
+      3,
+      0,
+      0,
+      597,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      530,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      402
+    ]
+  ],
+  "class_names": [
+    "freshapples",
+    "freshbanana",
+    "freshoranges",
+    "rottenapples",
+    "rottenbanana",
+    "rottenoranges"
+  ],
+  "critical_error_analysis": {
+    "false_negatives_rotten_as_fresh": 4,
+    "false_negative_rate": 0.002607561929595828,
+    "false_positives_fresh_as_rotten": 0,
+    "false_positive_rate": 0.0
+  }
+}
